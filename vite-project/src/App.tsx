@@ -1,10 +1,10 @@
 import './App.css';
-import SearchApiPage from './components/SearchApiPage';
+import { PokemonComponent } from './components/PokemonComponent';
 
 function App() {
   return (
     <>
-      <SearchApiPage />
+      <PokemonComponent />
     </>
   );
 }
