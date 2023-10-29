@@ -30,7 +30,6 @@ export class SearchComponent extends React.Component<
         defense: '',
       },
     },
-    searchHistory: [],
   };
 
   throwError = () => {
@@ -57,7 +56,7 @@ export class SearchComponent extends React.Component<
 
       const searchHistory = JSON.parse(
         localStorage.getItem('searchHistory') || '[]'
-      );
+      ) as string;
       const updatedSearchHistory = [...searchHistory, pokemonName];
       localStorage.setItem('searchTerm', JSON.stringify(updatedSearchHistory));
 

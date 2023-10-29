@@ -22,15 +22,7 @@ export class PokemonComponent extends React.Component {
         defense: '',
       },
     },
-    searchHistory: [],
   };
-
-  componentDidMount() {
-    const searchHistoryStr = localStorage.getItem('searchHistory');
-    const searchHistory = searchHistoryStr ? JSON.parse(searchHistoryStr) : [];
-
-    this.setState({ searchHistory });
-  }
 
   handleSearch = (pokemonName: string) => {
     this.setState({

@@ -6,5 +6,4 @@ export interface State {
   error: string | null;
   searchData: string;
   pokemonData: Pokemon;
-  searchHistory: Pokemon[];
 }
