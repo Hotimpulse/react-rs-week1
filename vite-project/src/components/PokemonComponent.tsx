@@ -1,5 +1,6 @@
 import React, { FormEvent } from 'react';
 import { MyButton } from './ButtonComponent';
+import { LoaderSpinner } from './LoaderSpinner';
 
 interface Pokemon {
   name: string;
@@ -11,6 +12,23 @@ interface Pokemon {
     attack: string;
     defense: string;
   };
+}
+interface PokemonApiResponse {
+  name: string;
+  species: {
+    name: string;
+  };
+  sprites: {
+    front_default: string;
+  };
+  types: {
+    type: {
+      name: string;
+    };
+  }[];
+  stats: {
+    base_stat: string;
+  }[];
 }
 
 interface State {
@@ -51,7 +69,7 @@ export class PokemonComponent extends React.Component {
         throw new Error(`HTTP request failed! Status: ${response.status}`);
       }
 
-      const data: any = await response.json();
+      const data: PokemonApiResponse = await response.json();
 
       const pokemonData: Pokemon = {
         name: data.name || '',
@@ -98,7 +116,7 @@ export class PokemonComponent extends React.Component {
     return (
       <>
         <div className="bg-[#bada55] text-[22px] text-color-red h-full flex-auto p-12 w-full rounded">
-          <div className="flex-auto space-y-5">
+          <div className="flex-auto space-y-5 mb-10">
             <h2 className="mr-5 flex">Search for a Pokemon:</h2>
             <form
               className="space-y-5"
@@ -115,36 +133,41 @@ export class PokemonComponent extends React.Component {
               <MyButton label="Search" type="submit" />
             </form>
           </div>
-          <div className="bg-[#40f083] text-3xl font-bold underline flex-auto h-auto p-12 space-y-5 rounded">
-            <div className="flex flex-col gap-10 h-full items-center">
-              <h2>Pokemon Details:</h2>
-              <p>
-                Name:
-                {data?.name &&
-                  `${data?.name?.charAt(0).toUpperCase()}${data?.name.slice(
-                    1
-                  )}`}
-              </p>
-              <p>Species: {data?.species}</p>
-              {data?.img && (
-                <img className="w-48" src={data?.img} alt="Pokemon image" />
-              )}
-              <p>Type: {data?.type}</p>
-              <p>Stats:</p>
-              <ul>
-                <li>HP: {data?.stats.hp}</li>
-                <li>Attack: {data?.stats.attack}</li>
-                <li>Defense: {data?.stats.defense}</li>
-              </ul>
-            </div>
-            <MyButton label="Error" onClick={this.throwError} />
-            {loading && <p>Getting data, wait a moment...</p>}
-            {error && (
-              <div>
-                <h2 className="text-red-800">{error}</h2>
+
+          {data ? (
+            <div className="bg-[#40f083] text-3xl font-bold underline flex-auto h-auto p-12 space-y-5 rounded">
+              <div className="flex flex-col gap-10 h-full items-center">
+                <h2>Pokemon Details:</h2>
+                <p>
+                  Name:{' '}
+                  {data?.name &&
+                    `${data?.name?.charAt(0).toUpperCase()}${data?.name.slice(
+                      1
+                    )}`}
+                </p>
+                <p>Species: {data?.species}</p>
+                {data?.img && (
+                  <img className="w-48" src={data?.img} alt="Pokemon image" />
+                )}
+                <p>Type: {data?.type}</p>
+                <p>Stats:</p>
+                <ul>
+                  <li>HP: {data?.stats.hp}</li>
+                  <li>Attack: {data?.stats.attack}</li>
+                  <li>Defense: {data?.stats.defense}</li>
+                </ul>
               </div>
-            )}
-          </div>
+              <MyButton label="Error" onClick={this.throwError} />
+              {loading && <LoaderSpinner />}
+              {error && (
+                <div>
+                  <h2 className="text-red-800">{error}</h2>
+                </div>
+              )}
+            </div>
+          ) : (
+            <LoaderSpinner />
+          )}
         </div>
       </>
     );
