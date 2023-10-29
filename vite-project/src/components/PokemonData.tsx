@@ -83,9 +83,9 @@ export class PokemonData extends React.Component<
     const { data, loading, error } = this.state;
     return (
       <>
-        {loading && <LoaderSpinner />}
         {!error ? (
           <div className="bg-[#40f083] text-3xl font-bold underline flex-auto h-auto p-12 space-y-5 rounded">
+            {loading && <LoaderSpinner />}
             <div className="flex flex-col gap-10 h-full items-center">
               <h2>Pokemon Details:</h2>
               <p>
