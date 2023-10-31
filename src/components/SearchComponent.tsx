@@ -171,11 +171,11 @@ export class SearchComponent extends React.Component<
               </div>
             </div>
             <div className="bg-[#55c6da] grid p-6 w-full rounded items-center justify-center">
-              <ul className="grid grid-cols-7 gap-8 ">
+              <ul className="grid md:grid-cols-7 sm:grid-cols-4 md:gap-8 sm:gap-2 items-center justify-center">
                 {data?.map((pokemon: Pokemon) => (
                   <li key={pokemon.name}>
                     <img
-                      className="w-24"
+                      className="md:w-24"
                       src={pokemon.img}
                       alt={pokemon.name}
                     />
