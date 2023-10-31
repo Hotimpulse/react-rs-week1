@@ -5,7 +5,9 @@ import { PokemonApiResponse } from '../interfaces/IPokemonAPI';
 import { SearchComponent } from './SearchComponent';
 import { PokemonData } from './PokemonData';
 import { ErrorBoundary } from './ErrorComponent';
-export class PokemonComponent extends React.Component {
+import { PokemonDataProps } from '../components/PokemonData';
+import { LoaderSpinner } from './LoaderSpinner';
+export class PokemonComponent extends React.Component<PokemonDataProps, State> {
   state: State = {
     data: null,
     loading: true,
@@ -13,13 +15,24 @@ export class PokemonComponent extends React.Component {
     searchData: '',
     pokemonData: {
       name: '',
-      species: '',
+      species: {
+        name: '',
+      },
       img: '',
-      type: '',
-      stats: {
-        hp: '',
-        attack: '',
-        defense: '',
+      types: [
+        {
+          type: {
+            name: '',
+          },
+        },
+      ],
+      stats: [
+        {
+          base_stat: '',
+        },
+      ],
+      sprites: {
+        front_default: '',
       },
     },
   };
@@ -33,39 +46,55 @@ export class PokemonComponent extends React.Component {
     });
   };
 
-  handleData = (data: PokemonApiResponse) => {
-    this.setState({ data, loading: false });
+  handleData = (pokemonData: PokemonApiResponse) => {
+    this.setState({ pokemonData, error: null, loading: false });
   };
 
   handleError = (error: string) => {
-    this.setState({ error, loading: false });
+    this.setState({ data: null, error, loading: false });
   };
 
+  async componentDidMount() {
+    try {
+      this.setState({
+        data: null,
+        loading: true,
+        error: null,
+      });
+    } catch (error) {
+      this.setState({
+        data: null,
+        loading: false,
+        error: 'Error fetching data from the server',
+      });
+    } finally {
+      setTimeout(() => {
+        this.setState({
+          data: null,
+          loading: false,
+          error: null,
+        });
+      }, 500);
+    }
+  }
+
   render() {
-    const { data, error, searchData } = this.state;
+    const { searchData, loading } = this.state;
     return (
       <ErrorBoundary>
         <>
+          {loading && <LoaderSpinner />}
           <SearchComponent
             onSearch={this.handleSearch}
             searchData={searchData}
             onData={this.handleData}
             onError={this.handleError}
           />
-          {error ? (
-            <div>
-              <h2 className="text-red-800">{error}</h2>
-              <p>Gotta catch them all! Choose a different Pokemon...</p>
-            </div>
-          ) : data ? (
-            <PokemonData
-              pokemonName={searchData}
-              onData={this.handleData}
-              onError={this.handleError}
-            />
-          ) : (
-            <p>Use the search, don`t be shy!</p>
-          )}
+          <PokemonData
+            pokemonName={searchData}
+            onData={this.handleData}
+            onError={this.handleError}
+          />
         </>
       </ErrorBoundary>
     );

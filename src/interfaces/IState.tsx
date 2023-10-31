@@ -1,9 +1,13 @@
 import { Pokemon } from './IPokemon';
+import { PokemonApiResponse } from './IPokemonAPI';
 
 export interface State {
-  data: Pokemon | null;
+  data: Pokemon[] | null;
   loading: boolean;
-  error: string | null;
+  error: string | null | Error;
   searchData: string;
-  pokemonData: Pokemon;
+  pokemonData: PokemonApiResponse;
+  searchHistory?: string[];
+  hasError?: boolean;
+  showSearchComponent?: boolean;
 }

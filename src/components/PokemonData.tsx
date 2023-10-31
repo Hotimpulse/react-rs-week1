@@ -1,18 +1,14 @@
 import React from 'react';
-import { Pokemon } from '../interfaces/IPokemon';
 import { PokemonApiResponse } from '../interfaces/IPokemonAPI';
 import { LoaderSpinner } from './LoaderSpinner';
-
-interface PokemonDataProps {
-  pokemonName: string;
-  onData: (data: PokemonApiResponse) => void;
-  onError: (error: string) => void;
-}
-
-interface PokemonDataState {
-  data: Pokemon | null;
-  loading: boolean;
-  error: string | null;
+import { MyButton } from './ButtonComponent';
+import { PokemonComponent } from './PokemonComponent';
+import { PokemonDataState } from '../interfaces/IPokemonDataState';
+export interface PokemonDataProps {
+  pokemonName?: string;
+  onData?: (data: PokemonApiResponse) => void;
+  onError?: (error: string) => void;
+  onGoBack?: () => void;
 }
 
 export class PokemonData extends React.Component<
@@ -26,51 +22,61 @@ export class PokemonData extends React.Component<
       data: null,
       loading: true,
       error: null,
+      searchData: '',
+      pokemonData: {
+        name: '',
+        species: {
+          name: '',
+        },
+        img: '',
+        types: [],
+        stats: [
+          {
+            base_stat: '',
+            stat: {
+              name: '',
+            },
+          },
+        ],
+        sprites: {
+          front_default: '',
+        },
+      },
+      showSearchComponent: false,
     };
   }
 
-  static async fetchPokemonData(pokemonName: string): Promise<Pokemon> {
+  static async fetchPokemonData(
+    pokemonName: string
+  ): Promise<PokemonApiResponse> {
     try {
       const response = await fetch(
         `https://pokeapi.co/api/v2/pokemon/${pokemonName}`
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP request failed! Status: ${response.status}`);
+        if (response.status === 404) {
+          throw new Error('This Pokemon does not exist, try another one!');
+        } else {
+          throw new Error(`HTTP request failed! Status: ${response.status}`);
+        }
       }
 
       const data: PokemonApiResponse = await response.json();
 
-      const pokemonData: Pokemon = {
-        name: data.name || '',
-        species: data.species.name || '',
-        img: data.sprites.front_default || '',
-        type: data.types[0]?.type.name || '',
-        stats: {
-          hp: data.stats[0]?.base_stat || '',
-          attack: data.stats[1]?.base_stat || '',
-          defense: data.stats[2]?.base_stat || '',
-        },
-      };
-
-      return pokemonData;
+      return data;
     } catch (error) {
       throw new Error('Error fetching data from the server');
     }
   }
 
   async componentDidMount() {
-    const { pokemonName } = this.props;
-
     try {
-      const data = await PokemonData.fetchPokemonData(pokemonName);
-      this.setState({
-        data,
-        loading: false,
-        error: null,
-      });
+      const { pokemonName } = this.props;
+      if (pokemonName) {
+        this.loadPokemonDetails(pokemonName);
+      }
     } catch (error) {
-      this.props.onError('Error fetching data from the server');
       this.setState({
         data: null,
         loading: false,
@@ -79,41 +85,107 @@ export class PokemonData extends React.Component<
     }
   }
 
+  async componentDidUpdate(prevProps: PokemonDataProps) {
+    const { pokemonName } = this.props;
+    if (pokemonName && pokemonName !== prevProps.pokemonName) {
+      this.loadPokemonDetails(pokemonName);
+    }
+  }
+
+  private async loadPokemonDetails(pokemonName: string) {
+    try {
+      const pokemonData = await PokemonData.fetchPokemonData(pokemonName);
+      this.setState({ pokemonData }, () => {
+        this.setState({ loading: false });
+      });
+    } catch (error) {
+      this.setState({
+        data: null,
+        loading: false,
+        error: 'Error fetching Pokemon details from the server',
+      });
+    }
+  }
+
+  handleGoBack = () => {
+    this.setState({
+      showSearchComponent: true,
+    });
+  };
+
   render() {
-    const { data, loading, error } = this.state;
+    const { loading, error, pokemonData, showSearchComponent } = this.state;
+
+    if (showSearchComponent) {
+      return <PokemonComponent />;
+    }
+
     return (
       <>
-        {!error ? (
+        {!error && !loading ? (
           <div className="bg-[#40f083] text-3xl font-bold underline flex-auto h-auto p-12 space-y-5 rounded">
-            {loading && <LoaderSpinner />}
             <div className="flex flex-col gap-10 h-full items-center">
-              <h2>Pokemon Details:</h2>
-              <p>
-                Name:{' '}
-                {data?.name &&
-                  `${data?.name?.charAt(0).toUpperCase()}${data?.name.slice(
-                    1
-                  )}`}
-              </p>
-              <p>Species: {data?.species}</p>
-              {data?.img && (
-                <img className="w-48" src={data?.img} alt="Pokemon image" />
+              {pokemonData ? (
+                <div>
+                  <div className="flex flex-col gap-10 h-full items-center">
+                    <h2>Pokemon Details:</h2>
+                    <p>
+                      Name:{' '}
+                      {pokemonData?.name &&
+                        `${pokemonData?.name
+                          ?.charAt(0)
+                          .toUpperCase()}${pokemonData?.name.slice(1)}`}
+                    </p>
+                    <p>Species: {pokemonData?.species?.name}</p>
+                    {pokemonData?.sprites?.front_default && (
+                      <img
+                        className="w-48"
+                        src={pokemonData?.sprites?.front_default}
+                        alt="Pokemon image"
+                      />
+                    )}
+                    <p>Type: {pokemonData.types?.[0]?.type?.name}</p>
+                    <p>Stats:</p>
+                    <ul>
+                      {pokemonData?.stats?.map?.((stat, index) => (
+                        <li
+                          key={index}
+                        >{`${stat?.stat?.name}: ${stat?.base_stat}`}</li>
+                      ))}
+                    </ul>
+                    <MyButton label={'Go back'} onClick={this.handleGoBack} />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {loading && <LoaderSpinner />}
+                  {error ? (
+                    <div className="text-red-500 p-2">
+                      {error === 'Not Found' ? (
+                        <div>
+                          <p>This is not the right Pokemon name</p>
+                          <MyButton
+                            label={'Go back'}
+                            onClick={this.handleGoBack}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <h2>Something went wrong</h2>
+                          {error && <p>{error.toString()}</p>}
+                          <MyButton
+                            label={'Go back'}
+                            onClick={this.handleGoBack}
+                          />
+                        </>
+                      )}
+                    </div>
+                  ) : null}
+                </>
               )}
-              <p>Type: {data?.type}</p>
-              <p>Stats:</p>
-              <ul>
-                <li>HP: {data?.stats.hp}</li>
-                <li>Attack: {data?.stats.attack}</li>
-                <li>Defense: {data?.stats.defense}</li>
-              </ul>
             </div>
           </div>
-        ) : (
-          <div>
-            <h2 className="text-red-800">{error?.toString()}</h2>
-            <p>Gotta catch them all! Choose a different pokemon...</p>
-          </div>
-        )}
+        ) : null}
       </>
     );
   }

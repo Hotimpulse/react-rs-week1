@@ -12,6 +12,10 @@ export interface PokemonApiResponse {
     };
   }[];
   stats: {
-    base_stat: string;
+    stat?: {
+      name?: string;
+    };
+    base_stat?: string;
   }[];
+  img: string;
 }

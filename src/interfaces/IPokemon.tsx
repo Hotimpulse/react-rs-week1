@@ -1,11 +1,15 @@
 export interface Pokemon {
-  name: string;
-  species: string;
-  img: string;
-  type: string;
-  stats: {
-    hp: string;
-    attack: string;
-    defense: string;
+  name?: string;
+  species?: {
+    name: string;
   };
+  img?: string;
+  types?: {
+    type: {
+      name: string;
+    };
+  }[];
+  stats?: {
+    base_stat?: string;
+  }[];
 }
