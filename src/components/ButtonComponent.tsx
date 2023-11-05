@@ -1,18 +1,15 @@
-import React, { MouseEvent } from 'react';
+import { MouseEvent } from 'react';
 
 interface IButtonProps {
-  label: string;
+  label: string | number;
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
-  type?: string;
+  disabled?: boolean;
 }
-export class MyButton extends React.Component<IButtonProps> {
-  render(): React.ReactNode {
-    const { label, onClick } = this.props;
 
-    return (
-      <button className="bg-blue-500 text-white rounded" onClick={onClick}>
-        {label}
-      </button>
-    );
-  }
+export default function MyButton({ label, onClick }: IButtonProps) {
+  return (
+    <button className="bg-blue-500 text-white rounded" onClick={onClick}>
+      {label}
+    </button>
+  );
 }

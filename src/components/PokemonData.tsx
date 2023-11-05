@@ -1,7 +1,6 @@
-import React from 'react';
-import { PokemonApiResponse } from '../interfaces/IPokemonAPI';
-import { LoaderSpinner } from './LoaderSpinner';
-import { MyButton } from './ButtonComponent';
+import { PokemonApiResponse } from '../interfaces/ISearchResults';
+import LoaderSpinner from './LoaderSpinner';
+import MyButton from './ButtonComponent';
 import { PokemonComponent } from './PokemonComponent';
 import { PokemonDataState } from '../interfaces/IPokemonDataState';
 export interface PokemonDataProps {

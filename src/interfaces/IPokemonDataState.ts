@@ -1,4 +1,4 @@
-import { PokemonApiResponse } from './IPokemonAPI';
+import { PokemonApiResponse } from './ISearchResults';
 
 export interface PokemonDataState {
   data: PokemonApiResponse | null;
