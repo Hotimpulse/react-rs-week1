@@ -44,7 +44,18 @@ export class Api implements IApi {
       .getPokemonByName(name.toLowerCase())
       .then((data) => data);
 
-    return { name: response.name, img: response.sprites.front_default };
+    const pokemonData = {
+      name: response.name,
+      img: response.sprites.front_default,
+      species: response.species.name,
+      types: response.types.map((type) => type.type.name),
+      stats: response.stats.map((stat) => ({
+        name: stat.stat.name,
+        base_stat: stat.base_stat,
+      })),
+    };
+
+    return pokemonData;
   };
 
   getPokemonData = async (name: string, page: number, limit: number) => {

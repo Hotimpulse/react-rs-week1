@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  useNavigate,
-  useLocation,
-  NavLink,
-  useParams,
-  Outlet,
-} from 'react-router-dom';
+import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 // components and interfaces
 import { ErrorBoundary } from './ErrorComponent';
 import LoaderSpinner from './LoaderSpinner';
@@ -14,7 +8,6 @@ import SearchComponent from './SearchComponent';
 import { IPokemonList } from '../interfaces/IPokemonList';
 import PokemonList from './PokemonList';
 import PaginationComponent from './PaginationComponent';
-import DetailsPage from '../routes/DetailsPage';
 
 export default function PokemonComponent() {
   const api = new Api();
@@ -25,21 +18,18 @@ export default function PokemonComponent() {
   const [results, setResults] = useState<IPokemonList[]>([]);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
-  const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { detailId } = useParams();
 
   const itemsPerPage = limit;
   const totalItems = results.length;
-  console.log(results);
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const displayedItems = results.slice(startIndex, endIndex);
 
-  const handleSubmit = async (data: string, page = 1, limit = 10) => {
+  const handleSubmit = async (data: string, page = 1, limit = 20) => {
     setLoading(true);
 
     const response = await api.getPokemonData(data, page, limit);
@@ -79,13 +69,7 @@ export default function PokemonComponent() {
 
   const handlePokeClick = (name: string) => {
     console.log('Clicked Pokemon:', name);
-    setDetailsOpen(true);
     navigate(`/details/${name}`);
-  };
-
-  const closeDetailsSection = () => {
-    setDetailsOpen(false);
-    navigate('/');
   };
 
   // useEffect(() => {}, [page]); // changes searchParams, initial state
@@ -95,7 +79,6 @@ export default function PokemonComponent() {
       <>
         <nav>
           <NavLink to="/">Main</NavLink>
-          {detailsOpen && <NavLink to="/details">Details</NavLink>}
         </nav>
 
         <SearchComponent
@@ -129,18 +112,7 @@ export default function PokemonComponent() {
               totalPages={totalPages}
               onPageChange={handlePageChange}
             />
-            <Outlet />
           </>
-        )}
-        {detailsOpen && (
-          <DetailsPage
-            loading={false}
-            error={null}
-            pokemonListData={results.find(
-              (pokemon) => pokemon.name === detailId
-            )}
-            onClose={closeDetailsSection}
-          />
         )}
       </>
     </ErrorBoundary>
