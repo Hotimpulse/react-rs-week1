@@ -17,24 +17,23 @@ export default function PokemonComponent() {
   );
   const [results, setResults] = useState<IPokemonList[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit, setLimit] = useState<number>(30);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const itemsPerPage = limit;
-  const totalItems = results.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const displayedItems = results.slice(startIndex, endIndex);
-
-  const handleSubmit = async (data: string, page = 1, limit = 20) => {
+  const handleSubmit = async (
+    data: string,
+    newPage: number,
+    newLimit: number
+  ) => {
     setLoading(true);
 
-    const response = await api.getPokemonData(data, page, limit);
+    const response = await api.getPokemonData(data, newPage, newLimit);
 
     setResults(response);
+    setPage(newPage);
+    setLimit(newLimit);
 
     setLoading(false);
   };
@@ -52,27 +51,23 @@ export default function PokemonComponent() {
       setLimit(limitParam);
     }
 
-    handleSubmit(searchData, page, limit);
+    handleSubmit(searchData, pageParam, limitParam);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
     navigate(`?page=${newPage}&limit=${limit}`);
   };
 
   const changeLimit = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(newLimit / limit);
-    navigate(`?page=${page}&limit=${newLimit}`);
+    setPage(1);
+    navigate(`?page=1&limit=${newLimit}`);
   };
 
   const handlePokeClick = (name: string) => {
     console.log('Clicked Pokemon:', name);
     navigate(`/details/${name}`);
   };
-
-  // useEffect(() => {}, [page]); // changes searchParams, initial state
 
   return (
     <ErrorBoundary>
@@ -82,36 +77,25 @@ export default function PokemonComponent() {
         </nav>
 
         <SearchComponent
-          onSubmit={handleSubmit}
+          onSubmit={(data) => handleSubmit(data, 1, limit)}
           searchData={searchData}
           setSearchData={setSearchData}
         />
-
-        <div>
-          <label htmlFor="limit">Items per page:</label>
-          <select
-            className="text-black"
-            name="limit"
-            id="limit"
-            value={limit}
-            onChange={(e) => changeLimit(Number(e.target.value))}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-          </select>
-        </div>
-
-        {loading ? (
-          <LoaderSpinner />
-        ) : (
+        {loading && <LoaderSpinner />}
+        {!loading && results.length > 0 && (
           <>
-            <PokemonList list={displayedItems} onClick={handlePokeClick} />
+            <PokemonList list={results} onClick={handlePokeClick} />
             <PaginationComponent
               currentPage={page}
-              totalPages={totalPages}
+              totalPages={Math.ceil(results.length / limit)}
               onPageChange={handlePageChange}
             />
+            <div>
+              <span>Show:</span>
+              <button onClick={() => changeLimit(10)}>10</button>
+              <button onClick={() => changeLimit(20)}>20</button>
+              <button onClick={() => changeLimit(50)}>50</button>
+            </div>
           </>
         )}
       </>

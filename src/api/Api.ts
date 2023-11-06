@@ -26,16 +26,6 @@ export class Api implements IApi {
       }
     );
 
-    // const response = await this.client
-    //   .listPokemons((page - 1) * limit, limit)
-    //   .then((data) => data);
-    // const promises: Promise<IPokemonList>[] = [];
-
-    // response.results.forEach((element) => {
-    //   const pokemon = this.getPokemonByName(element.name);
-    //   promises.push(pokemon);
-    // });
-
     return Promise.all(promises);
   };
 

@@ -12,20 +12,17 @@ export default function PokemonList({ list }: IPokemonListProps) {
       <ul className="grid md:grid-cols-7 sm:grid-cols-4 md:gap-8 sm:gap-2 items-center justify-center">
         {list.map((pokemon) => (
           <li key={pokemon.name}>
-            <Link to={`/details/${pokemon.name}`}>Details</Link>
-            <img
-              className="md:w-24"
-              src={pokemon.img || ''}
-              alt={pokemon.name}
-            />
-            <span>{pokemon.name}</span>
+            <Link to={`/details/${pokemon.name}`}>
+              <img
+                className="md:w-24"
+                src={pokemon.img || ''}
+                alt={pokemon.name}
+              />
+              <span>{pokemon.name}</span>
+            </Link>
           </li>
         ))}
       </ul>
     </div>
   );
-}
-
-{
-  /* <li key={pokemon.name} onClick={() => onClick(pokemon.name)}> */
 }
