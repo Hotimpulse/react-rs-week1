@@ -1,25 +1,43 @@
+import { useEffect, useState } from 'react';
+import { Api } from '../api/Api';
 import MyButton from '../components/ButtonComponent';
 import LoaderSpinner from '../components/LoaderSpinner';
 import { IPokemon } from '../interfaces/IPokemon';
 import { IPokemonList } from '../interfaces/IPokemonList';
+import { useParams } from 'react-router-dom';
 
 interface IDetailsPageProps {
-  loading?: boolean;
-  error?: string | null;
   pokemonData?: IPokemon;
   pokemonListData?: IPokemonList;
   onClose?: () => void;
 }
 
-export default function DetailsPage({
-  loading,
-  error,
-  pokemonData,
-  onClose,
-}: IDetailsPageProps) {
+export default function DetailsPage({ onClose }: IDetailsPageProps) {
+  const { detailId } = useParams();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pokemonData, setPokemonData] = useState<IPokemon | null>(null);
   const handleGoBack = () => {
     onClose;
   };
+
+  useEffect(() => {
+    const fetchData = async (name: string) => {
+      const api = new Api();
+      try {
+        const data = await api.getPokemonByName(name);
+        setPokemonData(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message || 'Something went wrong!');
+        setLoading(false);
+      }
+    };
+
+    if (detailId) {
+      fetchData(detailId);
+    }
+  }, [detailId]);
   return (
     <>
       {!error && !loading ? (
@@ -29,6 +47,11 @@ export default function DetailsPage({
               <div>
                 <div className="flex flex-col gap-10 h-full items-center">
                   <h2>Pokemon Details:</h2>
+                  <img
+                    className="w-48"
+                    src={pokemonData.img}
+                    alt="pokemonData.name"
+                  />
                   <p>
                     Name:{' '}
                     {pokemonData?.name &&
