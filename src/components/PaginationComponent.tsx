@@ -1,43 +1,37 @@
-// import { useNavigate } from 'react-router-dom';
-// import MyButton from './ButtonComponent';
-
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 interface IPaginationProps {
   currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
 }
 
-export default function PaginationComponent({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: IPaginationProps) {
-  // const navigate = useNavigate();
+const PaginationComponent: React.FC<
+  IPaginationProps & { onPageChange: (page: number) => void }
+> = ({ currentPage, onPageChange }) => {
+  const navigate = useNavigate();
 
   const handlePageChange = (newPage: number) => {
-    if (newPage > 0 && newPage <= totalPages) {
-      onPageChange(newPage);
-      // navigate(`?page=${newPage}`);
-    }
+    onPageChange(newPage);
+    navigate(`?page=${newPage}`);
   };
 
   return (
     <div>
       <button
-        onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        onClick={() => handlePageChange(currentPage - 1)}
       >
         Prev
       </button>
-      <span>
-        Page {currentPage} of {totalPages}
-      </span>
-      <button
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Next
-      </button>
+
+      {currentPage > 1 ? (
+        <span>Page {currentPage}</span>
+      ) : (
+        <span>Page {currentPage}</span>
+      )}
+
+      <button onClick={() => handlePageChange(currentPage + 1)}>Next</button>
     </div>
   );
-}
+};
+
+export default PaginationComponent;

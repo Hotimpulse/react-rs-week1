@@ -16,8 +16,7 @@ export class Api implements IApi {
   client = new PokemonClient();
 
   getPokemonList = async (page: number, limit: number) => {
-    const offset = (page - 1) * limit;
-    const response = await this.client.listPokemons(offset, limit);
+    const response = await this.client.listPokemons(page, limit);
 
     const promises: Promise<IPokemonList>[] = response.results.map(
       async (element) => {

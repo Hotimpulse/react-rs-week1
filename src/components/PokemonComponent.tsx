@@ -17,50 +17,34 @@ export default function PokemonComponent() {
   );
   const [results, setResults] = useState<IPokemonList[]>([]);
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(30);
+  const [limit, setLimit] = useState<number>(10);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const handleSubmit = async (
-    data: string,
-    newPage: number,
-    newLimit: number
-  ) => {
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleSubmit = async (data: string, page: number, limit: number) => {
     setLoading(true);
 
-    const response = await api.getPokemonData(data, newPage, newLimit);
+    const offset = (page - 1) * limit;
+    const response = await api.getPokemonData(data, offset, limit);
 
     setResults(response);
-    setPage(newPage);
-    setLimit(newLimit);
+    setPage(page);
+    setLimit(limit);
 
     setLoading(false);
   };
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const pageParam = parseInt(queryParams.get('page') || '1', 10);
-    const limitParam = parseInt(queryParams.get('limit') || '10', 10);
-
-    if (!isNaN(pageParam)) {
-      setPage(pageParam);
-    }
-
-    if (!isNaN(limitParam)) {
-      setLimit(limitParam);
-    }
-
-    handleSubmit(searchData, pageParam, limitParam);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
-
-  const handlePageChange = (newPage: number) => {
-    navigate(`?page=${newPage}&limit=${limit}`);
-  };
+    handleSubmit(searchData, page, limit);
+  }, [page, limit]);
 
   const changeLimit = (newLimit: number) => {
     setPage(1);
+    setLimit(newLimit);
     navigate(`?page=1&limit=${newLimit}`);
   };
 
@@ -87,7 +71,6 @@ export default function PokemonComponent() {
             <PokemonList list={results} onClick={handlePokeClick} />
             <PaginationComponent
               currentPage={page}
-              totalPages={Math.ceil(results.length / limit)}
               onPageChange={handlePageChange}
             />
             <div>
