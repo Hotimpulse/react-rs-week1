@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, NavLink, useSearchParams } from 'react-router-dom';
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 // components and interfaces
 import { ErrorBoundary } from './ErrorComponent';
 import LoaderSpinner from './LoaderSpinner';
@@ -11,6 +11,8 @@ import PaginationComponent from './PaginationComponent';
 
 export default function PokemonComponent() {
   const api = new Api();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState<boolean>(false);
   const [searchData, setSearchData] = useState<string>(
     localStorage.getItem('searchData') || ''
@@ -23,10 +25,10 @@ export default function PokemonComponent() {
   const [limit, setLimit] = useState<number>(
     Number(searchParams.get('limit')) || 10
   );
-  const navigate = useNavigate();
 
   const handleSubmit = async (data: string, page: number, limit: number) => {
     setLoading(true);
+    setSearchParams({ page: `${page}`, limit: `${limit}` });
 
     const offset = (page - 1) * limit;
     const response = await api.getPokemonData(data, offset, limit);
@@ -34,7 +36,6 @@ export default function PokemonComponent() {
     setResults(response);
     setPage(page);
     setLimit(limit);
-    setSearchParams({ page: `${page}`, limit: `${limit}` });
 
     setLoading(false);
   };
@@ -51,8 +52,8 @@ export default function PokemonComponent() {
   };
 
   const handlePokeClick = (name: string) => {
-    console.log('Clicked Pokemon:', name);
-    navigate(`/details/${name}`);
+    const updatedUrl = `/details/${name}?&page=${page}&limit=${limit}`;
+    navigate(updatedUrl);
   };
 
   return (

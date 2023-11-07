@@ -13,11 +13,10 @@ export default function DetailsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const api = new Api();
     const fetchData = async (name: string) => {
-      const api = new Api();
       try {
         const data = await api.getPokemonByName(name);
-        console.log(data, `data`);
         setPokemonData(data);
         setLoading(false);
       } catch (error) {
@@ -25,14 +24,14 @@ export default function DetailsPage() {
         setLoading(false);
       }
     };
-
-    if (detailId) {
-      fetchData(detailId);
+    if (!detailId) {
+      return;
     }
+    fetchData(detailId);
   }, [detailId]);
 
   const closeDetailsSection = () => {
-    navigate('/');
+    navigate(-1);
   };
 
   return (
