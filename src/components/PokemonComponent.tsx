@@ -12,7 +12,6 @@ import PaginationComponent from './PaginationComponent';
 export default function PokemonComponent() {
   const api = new Api();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState<boolean>(false);
   const [searchData, setSearchData] = useState<string>(
     localStorage.getItem('searchData') || ''
@@ -57,8 +56,8 @@ export default function PokemonComponent() {
   };
 
   return (
-    <ErrorBoundary>
-      <>
+    <>
+      <ErrorBoundary>
         <nav>
           <NavLink to="/">Main</NavLink>
         </nav>
@@ -85,7 +84,7 @@ export default function PokemonComponent() {
             </div>
           </>
         )}
-      </>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </>
   );
 }
