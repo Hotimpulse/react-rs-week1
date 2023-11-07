@@ -20,7 +20,6 @@ export default function DetailsPage() {
         setPokemonData(data);
         setLoading(false);
       } catch (error) {
-        navigate('/error');
         setError('Something went wrong!');
         setLoading(false);
       }
