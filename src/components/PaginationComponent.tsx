@@ -2,16 +2,20 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 interface IPaginationProps {
   currentPage: number;
+  currentLimit: number;
+  onPageChange: (page: number) => void;
 }
 
-const PaginationComponent: React.FC<
-  IPaginationProps & { onPageChange: (page: number) => void }
-> = ({ currentPage, onPageChange }) => {
+const PaginationComponent: React.FC<IPaginationProps> = ({
+  currentPage,
+  currentLimit,
+  onPageChange,
+}) => {
   const navigate = useNavigate();
 
   const handlePageChange = (newPage: number) => {
     onPageChange(newPage);
-    navigate(`?page=${newPage}`);
+    navigate(`?offset=0&limit=${currentLimit}?page=${newPage}`);
   };
 
   return (

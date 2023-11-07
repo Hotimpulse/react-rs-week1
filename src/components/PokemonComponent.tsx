@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 // components and interfaces
 import { ErrorBoundary } from './ErrorComponent';
 import LoaderSpinner from './LoaderSpinner';
@@ -18,11 +18,9 @@ export default function PokemonComponent() {
   const [results, setResults] = useState<IPokemonList[]>([]);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
-
   const navigate = useNavigate();
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+  const handlePageChange = (page: number) => {
+    setPage(page);
   };
 
   const handleSubmit = async (data: string, page: number, limit: number) => {
@@ -40,12 +38,13 @@ export default function PokemonComponent() {
 
   useEffect(() => {
     handleSubmit(searchData, page, limit);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
   const changeLimit = (newLimit: number) => {
     setPage(1);
     setLimit(newLimit);
-    navigate(`?page=1&limit=${newLimit}`);
+    navigate(`?offset=0&limit=${newLimit}?page=${page}`);
   };
 
   const handlePokeClick = (name: string) => {
@@ -71,6 +70,7 @@ export default function PokemonComponent() {
             <PokemonList list={results} onClick={handlePokeClick} />
             <PaginationComponent
               currentPage={page}
+              currentLimit={limit}
               onPageChange={handlePageChange}
             />
             <div>

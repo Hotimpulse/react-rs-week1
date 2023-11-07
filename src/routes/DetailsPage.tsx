@@ -39,65 +39,57 @@ export default function DetailsPage() {
     <>
       {loading && <LoaderSpinner />}
       {!error && !loading ? (
-        <div className="bg-[#40f083] text-3xl font-bold underline flex-auto h-auto p-12 space-y-5 rounded">
-          <div className="flex flex-col gap-10 h-full items-center">
-            {pokemonData ? (
-              <div>
-                <div className="flex flex-col gap-10 h-full items-center">
-                  <h2>Pokemon Details:</h2>
-                  <img
-                    className="w-48"
-                    src={pokemonData.img || ''}
-                    alt={pokemonData.name}
-                  />
-                  <p>
-                    Name:{' '}
-                    {pokemonData?.name &&
-                      `${pokemonData?.name
-                        ?.charAt(0)
-                        .toUpperCase()}${pokemonData?.name.slice(1)}`}
-                  </p>
-                  <p>Type: {pokemonData.types?.[0]}</p>
-                  <p>Stats:</p>
-                  <ul>
-                    {pokemonData?.stats?.map?.(
-                      (stat: string, index: number) => (
-                        <li
-                          key={index}
-                        >{`${stat?.name}: ${stat?.base_stat}`}</li>
-                      )
-                    )}
-                  </ul>
-                  <MyButton label={'Close'} onClick={closeDetailsSection} />
+        <div className="bg-[#40f083] md:text-3xl h-full md:p-12 max-w-md:p-4 space-y-5 font-bold rounded text-sm max-w-prose">
+          {pokemonData ? (
+            <div className="flex flex-col md:gap-7 max-w-md:gap-4 items-center">
+              <h2 className="mt-3">Pokemon Details:</h2>
+              <img
+                className="md:w-48"
+                src={pokemonData.img || ''}
+                alt={pokemonData.name}
+              />
+              <p>
+                Name:{' '}
+                {pokemonData?.name &&
+                  `${pokemonData?.name
+                    ?.charAt(0)
+                    .toUpperCase()}${pokemonData?.name.slice(1)}`}
+              </p>
+              <p>Type: {pokemonData.types?.[0]}</p>
+              <p>Stats:</p>
+              <ul className="mb-2">
+                {pokemonData?.stats?.map?.((stat: string, index: number) => (
+                  <li key={index}>{`${stat?.name}: ${stat?.base_stat}`}</li>
+                ))}
+              </ul>
+              <MyButton label={'Close'} onClick={closeDetailsSection} />
+            </div>
+          ) : (
+            <>
+              {error ? (
+                <div className="text-red-500 p-2">
+                  {error === 'Not Found' ? (
+                    <div>
+                      <p>This is not the right Pokemon name</p>
+                      <MyButton
+                        label={'Go back'}
+                        onClick={closeDetailsSection}
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <h2>Something went wrong</h2>
+                      {error && <p>{error.toString()}</p>}
+                      <MyButton
+                        label={'Go back'}
+                        onClick={closeDetailsSection}
+                      />
+                    </>
+                  )}
                 </div>
-              </div>
-            ) : (
-              <>
-                {error ? (
-                  <div className="text-red-500 p-2">
-                    {error === 'Not Found' ? (
-                      <div>
-                        <p>This is not the right Pokemon name</p>
-                        <MyButton
-                          label={'Go back'}
-                          onClick={closeDetailsSection}
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <h2>Something went wrong</h2>
-                        {error && <p>{error.toString()}</p>}
-                        <MyButton
-                          label={'Go back'}
-                          onClick={closeDetailsSection}
-                        />
-                      </>
-                    )}
-                  </div>
-                ) : null}
-              </>
-            )}
-          </div>
+              ) : null}
+            </>
+          )}
         </div>
       ) : null}
     </>
