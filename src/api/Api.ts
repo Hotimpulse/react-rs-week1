@@ -33,7 +33,7 @@ export class Api implements IApi {
       .getPokemonByName(name.toLowerCase())
       .then((data) => data);
 
-    const pokemonData = {
+    return {
       name: response.name,
       img: response.sprites.front_default,
       species: response.species.name,
@@ -43,8 +43,6 @@ export class Api implements IApi {
         base_stat: stat.base_stat,
       })),
     };
-
-    return pokemonData;
   };
 
   getPokemonData = async (name: string, page: number, limit: number) => {

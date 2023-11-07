@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { Api } from '../api/Api';
 import MyButton from '../components/ButtonComponent';
 import LoaderSpinner from '../components/LoaderSpinner';
-import { IPokemonList } from '../interfaces/IPokemonList';
+import { IPokemon } from '../interfaces/IPokemon';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function DetailsPage() {
   const { detailId } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [pokemonData, setPokemonData] = useState<IPokemonList | null>(null);
+  const [pokemonData, setPokemonData] = useState<IPokemon | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,8 +57,8 @@ export default function DetailsPage() {
               <p>Type: {pokemonData.types?.[0]}</p>
               <p>Stats:</p>
               <ul className="mb-2">
-                {pokemonData?.stats?.map?.((stat: string, index: number) => (
-                  <li key={index}>{`${stat?.name}: ${stat?.base_stat}`}</li>
+                {pokemonData?.stats?.map?.((stat, index) => (
+                  <li key={index}>{`${stat.name}: ${stat.base_stat}`}</li>
                 ))}
               </ul>
               <MyButton label={'Close'} onClick={closeDetailsSection} />
