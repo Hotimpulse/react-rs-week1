@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Api } from '../api/Api';
+import { useApi } from '../api/Api';
 import MyButton from '../components/ButtonComponent';
 import LoaderSpinner from '../components/LoaderSpinner';
 import { IPokemon } from '../interfaces/IPokemon';
 import { useNavigate, useParams } from 'react-router-dom';
+import { IPokemonList } from '../interfaces/IPokemonList';
 
 export default function DetailsPage() {
   const { detailId } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [pokemonData, setPokemonData] = useState<IPokemon | null>(null);
+  const [pokemonData, setPokemonData] = useState<
+    IPokemon | IPokemonList | null
+  >(null);
   const navigate = useNavigate();
+  const api = useApi();
 
   useEffect(() => {
-    const api = new Api();
     const fetchData = async (name: string) => {
       try {
         const data = await api.getPokemonByName(name);
@@ -28,6 +31,7 @@ export default function DetailsPage() {
       return;
     }
     fetchData(detailId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailId]);
 
   const closeDetailsSection = () => {
@@ -45,7 +49,7 @@ export default function DetailsPage() {
               <img
                 className="md:w-48"
                 src={pokemonData.img || ''}
-                alt={pokemonData.name}
+                alt={pokemonData.name || ''}
               />
               <p>
                 Name:{' '}
@@ -57,7 +61,7 @@ export default function DetailsPage() {
               <p>Type: {pokemonData.types?.[0]}</p>
               <p>Stats:</p>
               <ul className="mb-2">
-                {pokemonData?.stats?.map?.((stat, index) => (
+                {pokemonData.stats?.map?.((stat, index) => (
                   <li key={index}>{`${stat.name}: ${stat.base_stat}`}</li>
                 ))}
               </ul>

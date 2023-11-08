@@ -3,14 +3,14 @@ import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 // components and interfaces
 import { ErrorBoundary } from './ErrorComponent';
 import LoaderSpinner from './LoaderSpinner';
-import { Api } from '../api/Api';
+import { useApi } from '../api/Api';
 import SearchComponent from './SearchComponent';
 import { IPokemonList } from '../interfaces/IPokemonList';
 import PokemonList from './PokemonList';
 import PaginationComponent from './PaginationComponent';
 
 export default function PokemonComponent() {
-  const api = new Api();
+  const api = useApi();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [searchData, setSearchData] = useState<string>(

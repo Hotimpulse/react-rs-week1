@@ -1,5 +1,7 @@
 import { PokemonClient } from 'pokenode-ts';
 import { IPokemonList } from '../interfaces/IPokemonList';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface IApi {
   getPokemonList: (page: number, limit: number) => Promise<IPokemonList[]>;
@@ -12,15 +14,16 @@ interface IApi {
   ) => Promise<IPokemonList[]>;
 }
 
-export class Api implements IApi {
-  client = new PokemonClient();
+export const useApi = (): IApi => {
+  const [client] = useState(new PokemonClient());
+  const navigate = useNavigate();
 
-  getPokemonList = async (page: number, limit: number) => {
+  const getPokemonList = async (page: number, limit: number) => {
     try {
-      const response = await this.client.listPokemons(page, limit);
+      const response = await client.listPokemons(page, limit);
       const promises: Promise<IPokemonList>[] = response.results.map(
         async (element) => {
-          const pokemon = await this.getPokemonByName(element.name);
+          const pokemon = await getPokemonByName(element.name);
           return pokemon;
         }
       );
@@ -28,13 +31,14 @@ export class Api implements IApi {
       return Promise.all(promises);
     } catch (error) {
       console.log('getPokemonList Error:', error);
-      throw error;
+      navigate('/error');
+      throw new Error('Error in the API!');
     }
   };
 
-  getPokemonByName = async (name: string) => {
+  const getPokemonByName = async (name: string) => {
     try {
-      const response = await this.client
+      const response = await client
         .getPokemonByName(name.toLowerCase())
         .then((data) => data);
 
@@ -50,21 +54,25 @@ export class Api implements IApi {
       };
     } catch (error) {
       console.log('API Error:', error);
-      throw error;
+      navigate('/error');
+      throw new Error('Error in the API!');
     }
   };
 
-  getPokemonData = async (name: string, page: number, limit: number) => {
+  const getPokemonData = async (name: string, page: number, limit: number) => {
     try {
       if (name) {
-        const data = await this.getPokemonByName(name);
+        const data = await getPokemonByName(name);
         return [data];
       } else {
-        return await this.getPokemonList(page, limit);
+        return await getPokemonList(page, limit);
       }
     } catch (error) {
       console.log('getPokemonData Error:', error);
-      throw error;
+      navigate('/error');
+      throw new Error('Error in the API!');
     }
   };
-}
+
+  return { getPokemonByName, client, getPokemonData, getPokemonList };
+};
