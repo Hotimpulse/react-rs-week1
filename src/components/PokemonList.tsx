@@ -16,7 +16,7 @@ export default function PokemonList({ list }: IPokemonListProps) {
               <img
                 className="md:w-24"
                 src={pokemon.img || ''}
-                alt={pokemon.name}
+                alt={pokemon.name || ''}
               />
               <span>{pokemon.name}</span>
             </Link>
