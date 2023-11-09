@@ -18,7 +18,6 @@ export default function ErrorPage() {
         <MyButton
           label={'Go back'}
           onClick={() => {
-            // localStorage.setItem('searchData', '');
             dispatch({ type: 'SET_SEARCH_DATA', payload: '' });
             navigate('/');
           }}
