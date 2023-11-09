@@ -1,25 +1,23 @@
 import { ChangeEvent, FormEvent } from 'react';
 import MyButton from '../components/ButtonComponent';
+import { useMyAppContext } from '../app/AppContext';
 
 interface ISearchComponentProps {
   onSubmit: (data: string) => void;
-  searchData: string;
-  setSearchData: (data: string) => void;
 }
 
-export default function SearchComponent({
-  onSubmit,
-  searchData,
-  setSearchData,
-}: ISearchComponentProps) {
+export default function SearchComponent({ onSubmit }: ISearchComponentProps) {
+  const { state, dispatch } = useMyAppContext();
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchData(event.target.value);
+    // setSearchData(event.target.value);
+    dispatch({ type: 'SET_SEARCH_DATA', payload: event.target.value });
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    localStorage.setItem('searchData', searchData);
-    onSubmit(searchData);
+    // localStorage.setItem('searchData', searchData);
+    onSubmit(state.searchData);
   };
 
   return (

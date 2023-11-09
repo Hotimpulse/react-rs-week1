@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 // components and interfaces
-import { ErrorBoundary } from './ErrorComponent';
-import LoaderSpinner from './LoaderSpinner';
 import { useApi } from '../api/Api';
-import SearchComponent from './SearchComponent';
+import LoaderSpinner from './LoaderSpinner';
 import { IPokemonList } from '../interfaces/IPokemonList';
 import PokemonList from './PokemonList';
+import SearchComponent from './SearchComponent';
+import { ErrorBoundary } from './ErrorComponent';
 import PaginationComponent from './PaginationComponent';
+import Navbar from './Navbar';
 
 export default function PokemonComponent() {
   const api = useApi();
@@ -58,10 +59,7 @@ export default function PokemonComponent() {
   return (
     <>
       <ErrorBoundary>
-        <nav>
-          <NavLink to="/">Main</NavLink>
-        </nav>
-
+        <Navbar />
         <SearchComponent
           onSubmit={(data) => handleSubmit(data, 1, limit)}
           searchData={searchData}
