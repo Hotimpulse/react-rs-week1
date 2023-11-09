@@ -7,7 +7,7 @@ interface ISearchComponentProps {
 }
 
 export default function SearchComponent({ onSubmit }: ISearchComponentProps) {
-  const { state, dispatch } = useMyAppContext();
+  const { searchData, dispatch } = useMyAppContext();
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     // setSearchData(event.target.value);
@@ -17,7 +17,7 @@ export default function SearchComponent({ onSubmit }: ISearchComponentProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // localStorage.setItem('searchData', searchData);
-    onSubmit(state.searchData);
+    onSubmit(searchData);
   };
 
   return (

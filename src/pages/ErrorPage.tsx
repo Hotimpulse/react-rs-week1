@@ -1,10 +1,12 @@
 import { useNavigate, useRouteError } from 'react-router-dom';
 import MyButton from '../components/ButtonComponent';
 import Navbar from '../components/Navbar';
+import { useMyAppContext } from '../app/AppContext';
 
 export default function ErrorPage() {
   const navigate = useNavigate();
   const error = useRouteError();
+  const { dispatch } = useMyAppContext();
 
   return (
     <>
@@ -16,7 +18,8 @@ export default function ErrorPage() {
         <MyButton
           label={'Go back'}
           onClick={() => {
-            localStorage.setItem('searchData', '');
+            // localStorage.setItem('searchData', '');
+            dispatch({ type: 'SET_SEARCH_DATA', payload: '' });
             navigate('/');
           }}
         />
@@ -26,5 +29,5 @@ export default function ErrorPage() {
 }
 
 function isError(error: unknown): error is { statusText: string } {
-  return 'statusText' in error;
+  return !!error && typeof error === 'object' && 'statusText' in error;
 }
