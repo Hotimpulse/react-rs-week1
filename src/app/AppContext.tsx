@@ -34,7 +34,7 @@ const initialState = {
   sprites: {
     front_default: '',
   },
-  searchData: localStorage.getItem('searchData') as string,
+  searchData: '',
   results: [],
   singleResult: null,
 };
@@ -83,7 +83,9 @@ type AppContextType = State & {
   dispatch: Dispatch<Action>;
 };
 
-const MyAppContext = createContext<AppContextType | undefined>(undefined);
+export const MyAppContext = createContext<AppContextType | undefined>(
+  undefined
+);
 
 type Props = {
   children: ReactNode;
