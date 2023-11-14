@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 // components and interfaces
 import { useApi } from '../api/Api';
 import LoaderSpinner from './LoaderSpinner';
@@ -13,7 +13,6 @@ import { useMyAppContext } from '../app/AppContext';
 
 export default function PokemonComponent() {
   const api = useApi();
-  const navigate = useNavigate();
   const { searchData, dispatch } = useMyAppContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,11 +50,6 @@ export default function PokemonComponent() {
     setSearchParams({ page: `${page}`, limit: `${newLimit}` });
   };
 
-  const handlePokeClick = (name: string) => {
-    const updatedUrl = `/details/${name}?&page=${page}&limit=${limit}`;
-    navigate(updatedUrl);
-  };
-
   return (
     <>
       <ErrorBoundary>
@@ -67,9 +61,9 @@ export default function PokemonComponent() {
           }}
         />
         {loading && <LoaderSpinner />}
-        {!loading && results.length > 0 && (
-          <>
-            <PokemonList list={results} onClick={handlePokeClick} />
+        {!loading && <PokemonList list={results} />}
+        {results.length > 0 && (
+          <div>
             <PaginationComponent
               currentPage={page}
               currentLimit={limit}
@@ -81,7 +75,7 @@ export default function PokemonComponent() {
               <button onClick={() => changeLimit(20)}>20</button>
               <button onClick={() => changeLimit(50)}>50</button>
             </div>
-          </>
+          </div>
         )}
       </ErrorBoundary>
     </>
