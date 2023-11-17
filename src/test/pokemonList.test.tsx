@@ -22,4 +22,3 @@ describe('pokemonList', () => {
     expect(screen.getByTestId('nodata')).toHaveTextContent('No data');
   });
 });
-// getAllByRole

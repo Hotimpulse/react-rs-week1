@@ -37,7 +37,7 @@ export default function DetailsPage() {
 
   return (
     <>
-      {loading && <LoaderSpinner />}
+      {loading && <LoaderSpinner data-testid="loader-spinner" />}
       {!error && !loading ? (
         <div className="bg-[#40f083] md:text-3xl h-full md:p-12 max-w-md:p-4 space-y-5 font-bold rounded text-sm max-w-prose">
           {singleResult ? (
