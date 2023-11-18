@@ -1,22 +1,24 @@
 import { ChangeEvent, FormEvent } from 'react';
 import MyButton from '../components/ButtonComponent';
-import { useMyAppContext } from '../app/AppContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { setSearchData } from '../store/pokemonSlice';
 
 interface ISearchComponentProps {
   onSubmit: (data: string) => void;
 }
 
 export default function SearchComponent({ onSubmit }: ISearchComponentProps) {
-  const { searchData, dispatch } = useMyAppContext();
+  const { searchData } = useSelector((state: RootState) => state.pokemon);
+  const dispatch = useDispatch();
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    // setSearchData(event.target.value);
-    dispatch({ type: 'SET_SEARCH_DATA', payload: event.target.value });
+    const newSearchData = event.target.value;
+    dispatch(setSearchData(newSearchData));
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // localStorage.setItem('searchData', searchData);
     onSubmit(searchData);
   };
 

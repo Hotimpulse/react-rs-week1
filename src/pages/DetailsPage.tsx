@@ -1,23 +1,31 @@
 import { useEffect, useState } from 'react';
-import { useApi } from '../api/Api';
 import MyButton from '../components/ButtonComponent';
 import LoaderSpinner from '../components/LoaderSpinner';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useMyAppContext } from '../app/AppContext';
+import { RootState } from '../store/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPokemonByName, setSinglePokemon } from '../store/pokemonSlice';
+import { IPokemon } from '../interfaces/IPokemon';
+import { AsyncThunkAction } from '@reduxjs/toolkit';
 
 export default function DetailsPage() {
   const { detailId } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const api = useApi();
-  const { dispatch, singleResult } = useMyAppContext();
+  const { singleResult } = useSelector((state: RootState) => state.pokemon);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchData = async (name: string) => {
       try {
-        const data = await api.getPokemonByName(name);
-        dispatch({ type: 'SET_SINGLE_POKEMON', payload: data });
+        const action: AsyncThunkAction<IPokemon, string, RootState> = dispatch(
+          fetchPokemonByName(name)
+        );
+
+        const data = await action.payload;
+
+        dispatch(setSinglePokemon(data));
         setLoading(false);
       } catch (error) {
         setError('Something went wrong!');

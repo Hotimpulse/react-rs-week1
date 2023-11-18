@@ -1,11 +1,10 @@
-import { IPokemonList } from '../interfaces/IPokemonList';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 import PokemonCard from './PokemonCard';
 
-interface IPokemonListProps {
-  list: IPokemonList[];
-}
+export default function PokemonList() {
+  const list = useSelector((state: RootState) => state.pokemon.results);
 
-export default function PokemonList({ list }: IPokemonListProps) {
   return (
     <div className="bg-[#55c6da] grid p-6 w-full rounded items-center justify-center">
       {list.length ? (

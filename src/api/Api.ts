@@ -1,7 +1,7 @@
 import { PokemonClient } from 'pokenode-ts';
 import { IPokemonList } from '../interfaces/IPokemonList';
 import { useState } from 'react';
-import { useMyAppContext } from '../app/AppContext';
+// import { useMyAppContext } from '../app/AppContext';
 import { IPokemon } from '../interfaces/IPokemon';
 
 interface IApi {
@@ -17,7 +17,7 @@ interface IApi {
 
 export const useApi = (): IApi => {
   const [client] = useState(new PokemonClient());
-  const { dispatch } = useMyAppContext();
+  // const { dispatch } = useMyAppContext();
 
   const getPokemonList = async (
     page: number,
@@ -33,10 +33,10 @@ export const useApi = (): IApi => {
       );
 
       const pokemonList = await Promise.all(promises);
-      dispatch({ type: 'SET_POKELIST', payload: pokemonList });
+      // dispatch({ type: 'SET_POKELIST', payload: pokemonList });
       return pokemonList;
     } catch (error) {
-      dispatch({ type: 'SET_POKELIST', payload: [] });
+      // dispatch({ type: 'SET_POKELIST', payload: [] });
       return [];
     }
   };
@@ -58,14 +58,14 @@ export const useApi = (): IApi => {
         })),
       };
 
-      dispatch({ type: 'SET_SINGLE_POKEMON', payload: pokemonData });
+      // dispatch({ type: 'SET_SINGLE_POKEMON', payload: pokemonData });
       return pokemonData;
     } catch (error) {
       console.log('API Error:', error);
-      dispatch({
-        type: 'SET_SINGLE_POKEMON',
-        payload: { name: '', img: '', species: '', types: [], stats: [] },
-      });
+      // dispatch({
+      //   type: 'SET_SINGLE_POKEMON',
+      //   payload: { name: '', img: '', species: '', types: [], stats: [] },
+      // });
       return {
         name: '',
         img: '',

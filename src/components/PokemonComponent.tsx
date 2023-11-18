@@ -3,20 +3,27 @@ import { useSearchParams } from 'react-router-dom';
 // components and interfaces
 import { useApi } from '../api/Api';
 import LoaderSpinner from './LoaderSpinner';
-import { IPokemonList } from '../interfaces/IPokemonList';
+// import { IPokemonList } from '../interfaces/IPokemonList';
 import PokemonList from './PokemonList';
 import SearchComponent from './SearchComponent';
 import { ErrorBoundary } from './ErrorComponent';
 import PaginationComponent from './PaginationComponent';
 import Navbar from './Navbar';
-import { useMyAppContext } from '../app/AppContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { setPokeList, setSearchData } from '../store/pokemonSlice';
+// import { useMyAppContext } from '../app/AppContext';
 
 export default function PokemonComponent() {
   const api = useApi();
-  const { searchData, dispatch } = useMyAppContext();
+  // const { searchData, dispatch } = useMyAppContext();
+  const { searchData, results } = useSelector(
+    (state: RootState) => state.pokemon
+  );
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [results, setResults] = useState<IPokemonList[]>([]);
+  // const [results, setResults] = useState<IPokemonList[]>([]);
   const [page, setPage] = useState<number>(
     Number(searchParams.get('page')) || 1
   );
@@ -31,7 +38,7 @@ export default function PokemonComponent() {
     const offset = (page - 1) * limit;
     const response = await api.getPokemonData(data, offset, limit);
 
-    setResults(response);
+    dispatch(setPokeList(response));
     setPage(page);
     setLimit(limit);
 
@@ -46,7 +53,7 @@ export default function PokemonComponent() {
   const changeLimit = (newLimit: number) => {
     setPage(1);
     setLimit(newLimit);
-    dispatch({ type: 'SET_SEARCH_DATA', payload: searchData });
+    // dispatch({ type: 'SET_SEARCH_DATA', payload: searchData });
     setSearchParams({ page: `${page}`, limit: `${newLimit}` });
   };
 
@@ -56,12 +63,13 @@ export default function PokemonComponent() {
         <Navbar />
         <SearchComponent
           onSubmit={(data) => {
-            dispatch({ type: 'SET_SEARCH_DATA', payload: data });
+            dispatch(setSearchData(data));
+            // dispatch({ type: 'SET_SEARCH_DATA', payload: data });
             handleSubmit(data, 1, limit);
           }}
         />
         {loading && <LoaderSpinner />}
-        {!loading && <PokemonList list={results} />}
+        {!loading && <PokemonList />}
         {results.length > 0 && (
           <div>
             <PaginationComponent

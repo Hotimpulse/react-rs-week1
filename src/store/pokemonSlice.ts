@@ -1,6 +1,8 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IPokemonList } from '../interfaces/IPokemonList';
 import { IPokemon } from '../interfaces/IPokemon';
+import { Pokemon, PokemonClient } from 'pokenode-ts';
+import { RootState } from './store';
 
 interface PokemonState {
   name: string | null;
@@ -69,6 +71,27 @@ export const pokemonSlice = createSlice({
       state.singleResult = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPokemonList.fulfilled, (state, action) => {
+        state.results = action.payload;
+      })
+      .addCase(fetchPokemonList.rejected, (state) => {
+        state.results = [];
+      })
+      .addCase(fetchPokemonByName.fulfilled, (state, action) => {
+        state.singleResult = action.payload;
+      })
+      .addCase(fetchPokemonByName.rejected, (state) => {
+        state.singleResult = {
+          name: '',
+          img: '',
+          species: '',
+          types: [],
+          stats: [],
+        };
+      });
+  },
 });
 
 export const {
@@ -83,4 +106,49 @@ export const {
   setSinglePokemon,
 } = pokemonSlice.actions;
 
+export const fetchPokemonList = createAsyncThunk<
+  IPokemonList[],
+  { page: number; limit: number }
+>(
+  'pokemon/fetchPokemonList',
+  async ({ page, limit }: { page: number; limit: number }) => {
+    const client = new PokemonClient();
+    const response = await client.listPokemons(page, limit);
+    const promises = response.results.map(async (element) => {
+      const pokemon = await fetchPokemonByName(element.name);
+      return pokemon;
+    });
+
+    const pokemonList = await Promise.all(promises);
+    return pokemonList;
+  }
+);
+
+export const fetchPokemonByName = createAsyncThunk<IPokemon, string>(
+  'pokemon/fetchPokemonByName',
+  async (name: string) => {
+    const client = new PokemonClient();
+    const response = await client.getPokemonByName(name.toLowerCase());
+    return transformPokemonData(response);
+  }
+);
+
+const transformPokemonData = (response: Pokemon): IPokemon => {
+  return {
+    name: response.name,
+    img: response.sprites.front_default,
+    species: response.species.name,
+    types: response.types.map((type) => type.type.name),
+    stats: response.stats.map((stat) => ({
+      name: stat.stat.name,
+      base_stat: stat.base_stat,
+    })),
+  };
+};
+
 export default pokemonSlice.reducer;
+
+export const selectPokemon = (state: RootState) => state.pokemon;
+export const selectResults = (state: RootState) => state.pokemon.results;
+export const selectSingleResult = (state: RootState) =>
+  state.pokemon.singleResult;
