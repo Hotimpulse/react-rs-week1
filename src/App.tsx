@@ -1,29 +1,31 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import './App.css';
-import AppRoutes from './routes/AppRoutes';
-import DetailsPage from './routes/DetailsPage';
-import ErrorPage from './routes/ErrorPage';
+import DetailsPage from './pages/DetailsPage';
+import ErrorPage from './pages/ErrorPage';
+import Layout from './pages/Layout';
+import LoaderSpinner from './components/LoaderSpinner';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <AppRoutes />,
+    element: <Layout />,
     children: [
       {
+        index: true,
         path: '/details/:detailId',
         element: <DetailsPage />,
       },
     ],
     errorElement: <ErrorPage />,
   },
-  {
-    path: '/error',
-    element: <ErrorPage />,
-  },
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} fallbackElement={<LoaderSpinner />} />
+    </>
+  );
 }
 
 export default App;

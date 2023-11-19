@@ -1,7 +1,8 @@
 import { PokemonClient } from 'pokenode-ts';
 import { IPokemonList } from '../interfaces/IPokemonList';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMyAppContext } from '../app/AppContext';
+import { IPokemon } from '../interfaces/IPokemon';
 
 interface IApi {
   getPokemonList: (page: number, limit: number) => Promise<IPokemonList[]>;
@@ -16,9 +17,12 @@ interface IApi {
 
 export const useApi = (): IApi => {
   const [client] = useState(new PokemonClient());
-  const navigate = useNavigate();
+  const { dispatch } = useMyAppContext();
 
-  const getPokemonList = async (page: number, limit: number) => {
+  const getPokemonList = async (
+    page: number,
+    limit: number
+  ): Promise<IPokemonList[]> => {
     try {
       const response = await client.listPokemons(page, limit);
       const promises: Promise<IPokemonList>[] = response.results.map(
@@ -28,11 +32,12 @@ export const useApi = (): IApi => {
         }
       );
 
-      return Promise.all(promises);
+      const pokemonList = await Promise.all(promises);
+      dispatch({ type: 'SET_POKELIST', payload: pokemonList });
+      return pokemonList;
     } catch (error) {
-      console.log('getPokemonList Error:', error);
-      navigate('/error');
-      throw new Error('Error in the API!');
+      dispatch({ type: 'SET_POKELIST', payload: [] });
+      return [];
     }
   };
 
@@ -42,7 +47,7 @@ export const useApi = (): IApi => {
         .getPokemonByName(name.toLowerCase())
         .then((data) => data);
 
-      return {
+      const pokemonData: IPokemon = {
         name: response.name,
         img: response.sprites.front_default,
         species: response.species.name,
@@ -52,25 +57,43 @@ export const useApi = (): IApi => {
           base_stat: stat.base_stat,
         })),
       };
+
+      dispatch({ type: 'SET_SINGLE_POKEMON', payload: pokemonData });
+      return pokemonData;
     } catch (error) {
       console.log('API Error:', error);
-      navigate('/error');
-      throw new Error('Error in the API!');
+      dispatch({
+        type: 'SET_SINGLE_POKEMON',
+        payload: { name: '', img: '', species: '', types: [], stats: [] },
+      });
+      return {
+        name: '',
+        img: '',
+        species: '',
+        types: [],
+        stats: [],
+      };
     }
   };
 
-  const getPokemonData = async (name: string, page: number, limit: number) => {
+  const getPokemonData = async (
+    name: string,
+    page: number,
+    limit: number
+  ): Promise<IPokemonList[]> => {
     try {
       if (name) {
         const data = await getPokemonByName(name);
+        if (!data.name) {
+          return [];
+        }
         return [data];
       } else {
-        return await getPokemonList(page, limit);
+        const pokemonList = await getPokemonList(page, limit);
+        return pokemonList;
       }
     } catch (error) {
-      console.log('getPokemonData Error:', error);
-      navigate('/error');
-      throw new Error('Error in the API!');
+      return [];
     }
   };
 

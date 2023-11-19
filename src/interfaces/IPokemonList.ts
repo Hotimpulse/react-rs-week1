@@ -1,6 +1,3 @@
 import { IPokemon } from './IPokemon';
 
-export interface IPokemonList extends IPokemon {
-  name: string | null;
-  img: string | null;
-}
+export type IPokemonList = Pick<IPokemon, 'img' | 'name'>;

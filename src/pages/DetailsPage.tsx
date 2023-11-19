@@ -2,25 +2,22 @@ import { useEffect, useState } from 'react';
 import { useApi } from '../api/Api';
 import MyButton from '../components/ButtonComponent';
 import LoaderSpinner from '../components/LoaderSpinner';
-import { IPokemon } from '../interfaces/IPokemon';
 import { useNavigate, useParams } from 'react-router-dom';
-import { IPokemonList } from '../interfaces/IPokemonList';
+import { useMyAppContext } from '../app/AppContext';
 
 export default function DetailsPage() {
   const { detailId } = useParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [pokemonData, setPokemonData] = useState<
-    IPokemon | IPokemonList | null
-  >(null);
   const navigate = useNavigate();
   const api = useApi();
+  const { dispatch, singleResult } = useMyAppContext();
 
   useEffect(() => {
     const fetchData = async (name: string) => {
       try {
         const data = await api.getPokemonByName(name);
-        setPokemonData(data);
+        dispatch({ type: 'SET_SINGLE_POKEMON', payload: data });
         setLoading(false);
       } catch (error) {
         setError('Something went wrong!');
@@ -40,28 +37,28 @@ export default function DetailsPage() {
 
   return (
     <>
-      {loading && <LoaderSpinner />}
+      {loading && <LoaderSpinner data-testid="loader-spinner" />}
       {!error && !loading ? (
         <div className="bg-[#40f083] md:text-3xl h-full md:p-12 max-w-md:p-4 space-y-5 font-bold rounded text-sm max-w-prose">
-          {pokemonData ? (
+          {singleResult ? (
             <div className="flex flex-col md:gap-7 max-w-md:gap-4 items-center">
               <h2 className="mt-3">Pokemon Details:</h2>
               <img
                 className="md:w-48"
-                src={pokemonData.img || ''}
-                alt={pokemonData.name || ''}
+                src={singleResult.img || ''}
+                alt={singleResult.name || ''}
               />
               <p>
                 Name:{' '}
-                {pokemonData?.name &&
-                  `${pokemonData?.name
+                {singleResult?.name &&
+                  `${singleResult?.name
                     ?.charAt(0)
-                    .toUpperCase()}${pokemonData?.name.slice(1)}`}
+                    .toUpperCase()}${singleResult?.name.slice(1)}`}
               </p>
-              <p>Type: {pokemonData.types?.[0]}</p>
+              <p>Type: {singleResult.types?.[0]}</p>
               <p>Stats:</p>
               <ul className="mb-2">
-                {pokemonData.stats?.map?.((stat, index) => (
+                {singleResult.stats?.map?.((stat, index) => (
                   <li key={index}>{`${stat.name}: ${stat.base_stat}`}</li>
                 ))}
               </ul>

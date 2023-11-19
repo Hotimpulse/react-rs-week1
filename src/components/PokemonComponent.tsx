@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 // components and interfaces
-import { ErrorBoundary } from './ErrorComponent';
-import LoaderSpinner from './LoaderSpinner';
 import { useApi } from '../api/Api';
-import SearchComponent from './SearchComponent';
+import LoaderSpinner from './LoaderSpinner';
 import { IPokemonList } from '../interfaces/IPokemonList';
 import PokemonList from './PokemonList';
+import SearchComponent from './SearchComponent';
+import { ErrorBoundary } from './ErrorComponent';
 import PaginationComponent from './PaginationComponent';
+import Navbar from './Navbar';
+import { useMyAppContext } from '../app/AppContext';
 
 export default function PokemonComponent() {
   const api = useApi();
-  const navigate = useNavigate();
+  const { searchData, dispatch } = useMyAppContext();
   const [loading, setLoading] = useState<boolean>(false);
-  const [searchData, setSearchData] = useState<string>(
-    localStorage.getItem('searchData') || ''
-  );
   const [searchParams, setSearchParams] = useSearchParams();
   const [results, setResults] = useState<IPokemonList[]>([]);
   const [page, setPage] = useState<number>(
@@ -47,30 +46,24 @@ export default function PokemonComponent() {
   const changeLimit = (newLimit: number) => {
     setPage(1);
     setLimit(newLimit);
+    dispatch({ type: 'SET_SEARCH_DATA', payload: searchData });
     setSearchParams({ page: `${page}`, limit: `${newLimit}` });
-  };
-
-  const handlePokeClick = (name: string) => {
-    const updatedUrl = `/details/${name}?&page=${page}&limit=${limit}`;
-    navigate(updatedUrl);
   };
 
   return (
     <>
       <ErrorBoundary>
-        <nav>
-          <NavLink to="/">Main</NavLink>
-        </nav>
-
+        <Navbar />
         <SearchComponent
-          onSubmit={(data) => handleSubmit(data, 1, limit)}
-          searchData={searchData}
-          setSearchData={setSearchData}
+          onSubmit={(data) => {
+            dispatch({ type: 'SET_SEARCH_DATA', payload: data });
+            handleSubmit(data, 1, limit);
+          }}
         />
         {loading && <LoaderSpinner />}
-        {!loading && results.length > 0 && (
-          <>
-            <PokemonList list={results} onClick={handlePokeClick} />
+        {!loading && <PokemonList list={results} />}
+        {results.length > 0 && (
+          <div>
             <PaginationComponent
               currentPage={page}
               currentLimit={limit}
@@ -82,7 +75,7 @@ export default function PokemonComponent() {
               <button onClick={() => changeLimit(20)}>20</button>
               <button onClick={() => changeLimit(50)}>50</button>
             </div>
-          </>
+          </div>
         )}
       </ErrorBoundary>
     </>
