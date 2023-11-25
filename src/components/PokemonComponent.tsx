@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 // components and interfaces
 import { useApi } from '../api/Api';
 import LoaderSpinner from './LoaderSpinner';
-// import { IPokemonList } from '../interfaces/IPokemonList';
 import PokemonList from './PokemonList';
 import SearchComponent from './SearchComponent';
 import { ErrorBoundary } from './ErrorComponent';
@@ -12,18 +11,15 @@ import Navbar from './Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { setPokeList, setSearchData } from '../store/pokemonSlice';
-// import { useMyAppContext } from '../app/AppContext';
+import { setLoading } from '../store/pokemonSlice';
 
 export default function PokemonComponent() {
   const api = useApi();
-  // const { searchData, dispatch } = useMyAppContext();
-  const { searchData, results } = useSelector(
+  const { searchData, results, loading } = useSelector(
     (state: RootState) => state.pokemon
   );
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState<boolean>(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  // const [results, setResults] = useState<IPokemonList[]>([]);
   const [page, setPage] = useState<number>(
     Number(searchParams.get('page')) || 1
   );
@@ -32,28 +28,35 @@ export default function PokemonComponent() {
   );
 
   const handleSubmit = async (data: string, page: number, limit: number) => {
-    setLoading(true);
-    setSearchParams({ page: `${page}`, limit: `${limit}` });
+    try {
+      dispatch(setLoading(true));
 
-    const offset = (page - 1) * limit;
-    const response = await api.getPokemonData(data, offset, limit);
+      setSearchParams({ page: `${page}`, limit: `${limit}` });
 
-    dispatch(setPokeList(response));
-    setPage(page);
-    setLimit(limit);
+      const offset = (page - 1) * limit;
+      const response = await api.getPokemonData(data, offset, limit);
 
-    setLoading(false);
+      dispatch(setPokeList(response));
+      setPage(page);
+      setLimit(limit);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   useEffect(() => {
-    handleSubmit(searchData, page, limit);
+    const fetchData = async () => {
+      await handleSubmit(searchData, page, limit);
+    };
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
   const changeLimit = (newLimit: number) => {
     setPage(1);
     setLimit(newLimit);
-    // dispatch({ type: 'SET_SEARCH_DATA', payload: searchData });
     setSearchParams({ page: `${page}`, limit: `${newLimit}` });
   };
 
@@ -64,11 +67,10 @@ export default function PokemonComponent() {
         <SearchComponent
           onSubmit={(data) => {
             dispatch(setSearchData(data));
-            // dispatch({ type: 'SET_SEARCH_DATA', payload: data });
             handleSubmit(data, 1, limit);
           }}
         />
-        {loading && <LoaderSpinner />}
+        {loading && <LoaderSpinner data-testid="loader-spinner" />}
         {!loading && <PokemonList />}
         {results.length > 0 && (
           <div>

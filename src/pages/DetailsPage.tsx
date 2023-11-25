@@ -7,35 +7,43 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchPokemonByName, setSinglePokemon } from '../store/pokemonSlice';
 import { IPokemon } from '../interfaces/IPokemon';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
+import { setLoading } from '../store/pokemonSlice';
 
 export default function DetailsPage() {
   const { detailId } = useParams();
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { singleResult } = useSelector((state: RootState) => state.pokemon);
+  const { singleResult, loading } = useSelector(
+    (state: RootState) => state.pokemon
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(setLoading(true));
     const fetchData = async (name: string) => {
       try {
         const action: AsyncThunkAction<IPokemon, string, RootState> = dispatch(
           fetchPokemonByName(name)
         );
 
-        const data = await action.payload;
+        const data: IPokemon = await action.payload;
 
         dispatch(setSinglePokemon(data));
-        setLoading(false);
       } catch (error) {
         setError('Something went wrong!');
-        setLoading(false);
       }
     };
-    if (!detailId) {
-      return;
-    }
-    fetchData(detailId);
+    const loadData = async () => {
+      if (detailId) {
+        await fetchData(detailId);
+      } else {
+        return;
+      }
+    };
+
+    loadData().then(() => {
+      dispatch(setLoading(false));
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailId]);
 

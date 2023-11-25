@@ -4,7 +4,7 @@ import { IPokemon } from '../interfaces/IPokemon';
 import { Pokemon, PokemonClient } from 'pokenode-ts';
 import { RootState } from './store';
 
-interface PokemonState {
+export interface PokemonState {
   name: string | null;
   img: string | null;
   species: string;
@@ -19,6 +19,7 @@ interface PokemonState {
   searchData: string;
   results: IPokemonList[];
   singleResult: IPokemon | null;
+  loading: boolean;
 }
 
 const initialState: PokemonState = {
@@ -33,6 +34,7 @@ const initialState: PokemonState = {
   searchData: '',
   results: [],
   singleResult: null,
+  loading: false,
 };
 
 export const pokemonSlice = createSlice({
@@ -70,6 +72,9 @@ export const pokemonSlice = createSlice({
     setSinglePokemon: (state, action: PayloadAction<IPokemon | null>) => {
       state.singleResult = action.payload;
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -104,6 +109,7 @@ export const {
   setSearchData,
   setPokeList,
   setSinglePokemon,
+  setLoading,
 } = pokemonSlice.actions;
 
 export const fetchPokemonList = createAsyncThunk<
