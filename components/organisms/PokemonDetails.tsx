@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import MyButton from '../../components/atoms/ButtonComponent';
-import LoaderSpinner from '../../components/atoms/LoaderSpinner';
+import { useEffect, useState, MouseEvent } from 'react';
+import MyButton from '../atoms/ButtonComponent';
+import LoaderSpinner from '../atoms/LoaderSpinner';
 import { RootState } from '../../store/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPokemonByName, setSinglePokemon } from '../../store/pokemonSlice';
@@ -8,9 +8,8 @@ import { IPokemon } from '../../interfaces/IPokemon';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
 import { setLoading } from '../../store/pokemonSlice';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 
-export default function DetailsPage() {
+export default function PokemonDetails() {
   const router = useRouter();
 
   const pokemonName = router.query.pokemonName as string;
@@ -50,7 +49,7 @@ export default function DetailsPage() {
   }, [pokemonName]);
 
   const closeDetailsSection = () => {
-    <Link href="/"></Link>
+    router.push('/');
   };
 
   return (

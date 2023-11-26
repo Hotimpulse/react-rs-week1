@@ -27,12 +27,8 @@ export default function PokemonComponent() {
 
   const { page: queryPage, limit: queryLimit } = router.query;
 
-  const [page, setPage] = useState<number>(
-    Number(queryPage) || 1
-  );
-  const [limit, setLimit] = useState<number>(
-    Number(queryLimit) || 10
-  );
+  const [page, setPage] = useState<number>(Number(queryPage) || 1);
+  const [limit, setLimit] = useState<number>(Number(queryLimit) || 10);
 
   const handleSubmit = async (data: string, page: number, limit: number) => {
     try {
@@ -45,7 +41,7 @@ export default function PokemonComponent() {
       router.push({
         pathname: router.pathname,
         query: { ...router.query, ...Object.fromEntries(newSearchParams) },
-      })
+      });
 
       const offset = (page - 1) * limit;
       const response = await api.getPokemonData(data, offset, limit);
@@ -94,17 +90,17 @@ export default function PokemonComponent() {
         {loading && <LoaderSpinner data-testid="loader-spinner" />}
         {!loading && <PokemonList />}
         {results.length > 0 && (
-          <div className='flex flex-col gap-5 justify-center items-center'>
+          <div className="flex flex-col gap-5 justify-center items-center">
             <PaginationComponent
               currentPage={page}
               currentLimit={limit}
               onPageChange={setPage}
             />
-            <div className='flex gap-5 justify-center align-middle items-baseline'>
+            <div className="flex gap-5 justify-center align-middle items-baseline">
               <span>Show:</span>
-              <MyButton onClick={() => changeLimit(10)} label="10"/>
-              <MyButton onClick={() => changeLimit(20)} label="20"/>
-              <MyButton onClick={() => changeLimit(50)} label="50"/>
+              <MyButton onClick={() => changeLimit(10)} label="10" />
+              <MyButton onClick={() => changeLimit(20)} label="20" />
+              <MyButton onClick={() => changeLimit(50)} label="50" />
             </div>
           </div>
         )}
