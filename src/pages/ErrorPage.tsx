@@ -1,12 +1,13 @@
 import { useNavigate, useRouteError } from 'react-router-dom';
 import MyButton from '../components/ButtonComponent';
 import Navbar from '../components/Navbar';
-import { useMyAppContext } from '../app/AppContext';
+import { useDispatch } from 'react-redux';
+import { setSearchData } from '../store/pokemonSlice';
 
 export default function ErrorPage() {
   const navigate = useNavigate();
   const error = useRouteError();
-  const { dispatch } = useMyAppContext();
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -18,7 +19,7 @@ export default function ErrorPage() {
         <MyButton
           label={'Go back'}
           onClick={() => {
-            dispatch({ type: 'SET_SEARCH_DATA', payload: '' });
+            dispatch(setSearchData(''));
             navigate('/');
           }}
         />
