@@ -1,4 +1,5 @@
-import { useEffect, useState, MouseEvent } from 'react';
+/* eslint-disable @next/next/no-img-element */
+import { useEffect, useState } from 'react';
 import MyButton from '../atoms/ButtonComponent';
 import LoaderSpinner from '../atoms/LoaderSpinner';
 import { RootState } from '../../store/store';
