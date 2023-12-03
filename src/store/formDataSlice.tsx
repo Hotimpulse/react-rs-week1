@@ -34,8 +34,12 @@ const formDataSlice = createSlice({
     updatePicture: (state, action: PayloadAction<string>) => {
       state.picture = action.payload;
     },
+    updateCountry: (state, action: PayloadAction<string>) => {
+      state.country = action.payload;
+    },
   },
 });
 
-export const { updateFormData, updatePicture } = formDataSlice.actions;
+export const { updateFormData, updatePicture, updateCountry } =
+  formDataSlice.actions;
 export default formDataSlice.reducer;

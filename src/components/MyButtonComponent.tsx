@@ -1,7 +1,7 @@
 interface IMyButtonProps {
   type: 'submit' | 'reset' | 'button' | undefined;
   label: string;
-  disabled: boolean;
+  disabled?: boolean;
   className: string;
 }
 

@@ -4,9 +4,9 @@ import {
   Navigate,
 } from 'react-router-dom';
 import './App.css';
-import ReactHookForm from './ReactHookForm';
-import UncontrolledForm from './UncontrolledForm';
-import Home from './Home';
+import ReactHookForm from './components/ReactHookForm';
+import UncontrolledForm from './components/UncontrolledForm';
+import Home from './components/Home';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 

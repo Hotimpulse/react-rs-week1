@@ -4,9 +4,11 @@ import * as yup from 'yup';
 import { useDropzone } from 'react-dropzone';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
-import { updatePicture } from './store/formDataSlice';
 import { useDispatch } from 'react-redux';
-import MyButtonComponent from './components/MyButtonComponent';
+import { updatePicture, updateCountry } from '../store/formDataSlice';
+import MyButtonComponent from './MyButtonComponent';
+import { useEffect } from 'react';
+import NavBar from './NavBar';
 
 interface IFormInputs {
   name: string;
@@ -57,19 +59,19 @@ export default function ReactHookForm() {
     formState: { errors, isValid },
     reset,
     setValue,
+    trigger,
   } = useForm<IFormInputs>({ resolver: yupResolver(schema), mode: 'onBlur' });
+
+  useEffect(() => {
+    trigger();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setValue, trigger]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const fieldStyle =
     'flex flex-col mb-2 text-left bg-amber-200 rounded border-black border-2 w-96 mx-auto';
-
-  const onSubmit: SubmitHandler<IFormInputs> = (data) => {
-    console.log({ data });
-    navigate('/');
-    reset();
-  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -87,10 +89,33 @@ export default function ReactHookForm() {
     },
   });
 
-  const countryOptions = ['Country 1', 'Country 2', 'Country 3'];
+  const options = [
+    { value: 'Country 1', label: 'Country 1' },
+    { value: 'Country 2', label: 'Country 2' },
+    { value: 'Country 3', label: 'Country 3' },
+  ];
+
+  const handleCountryChange = (
+    selectedOption: { label: string; value: string } | null
+  ) => {
+    const selectedCountry = (selectedOption as { value: string })?.value || '';
+    dispatch(updateCountry(selectedCountry));
+    setValue('country', selectedCountry);
+    trigger('country');
+  };
+
+  const onSubmit: SubmitHandler<IFormInputs> = (data) => {
+    console.log({ data });
+    dispatch(updateCountry(data.country));
+    reset();
+    navigate('/');
+  };
+
+  console.log(errors);
 
   return (
     <>
+      <NavBar />
       <h1 className="mb-5">React Hook Form</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className={fieldStyle}>
@@ -159,7 +184,7 @@ export default function ReactHookForm() {
         <div className="flex justify-center gap-3 mb-3 items-center">
           <label htmlFor="picture">Upload a picture:</label>
           <div {...getRootProps()} className="bg-amber-200 p-4 dropzone">
-            <input {...getInputProps()} />
+            <input {...register('picture')} {...getInputProps()} />
             {isDragActive ? (
               <p>Drop the files here...</p>
             ) : (
@@ -174,15 +199,10 @@ export default function ReactHookForm() {
         <div className="flex justify-center gap-3 mb-3 items-center">
           <label htmlFor="country">Select Country:</label>
           <Select
-            options={countryOptions.map((country) => ({
-              label: country,
-              value: country,
-            }))}
+            options={options}
             name="country"
             id="country"
-            onChange={(selectedOption) =>
-              setValue('country', selectedOption?.value || '')
-            }
+            onChange={handleCountryChange}
           />
           <p className="text-red-600">{errors.country?.message}</p>
         </div>

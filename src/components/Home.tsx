@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { RootState } from './store/store';
+import { RootState } from '../store/store';
 
 export default function Home() {
   const picture = useSelector((state: RootState) => state.formData.picture);
