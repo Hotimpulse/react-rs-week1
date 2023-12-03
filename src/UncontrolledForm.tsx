@@ -50,6 +50,10 @@ export default function UncontrolledForm() {
             <option value="Female">Female</option>
           </select>
         </div>
+        <div className="flex justify-center gap-3 mb-3">
+          <label htmlFor="terms">Accept Terms and Conditions:</label>
+          <input type="checkbox" name="terms" id="terms" />
+        </div>
         <button type="submit" className="text-black-600 bg-amber-200">
           Submit
         </button>
@@ -57,12 +61,3 @@ export default function UncontrolledForm() {
     </div>
   );
 }
-
-// - name (validate for first uppercased letter)
-// - age (should be number, no negative values)
-// - email (validate for email)
-// - 2 passwords (should match, display the password strength: 1 number, 1 uppercased letter, 1 lowercased letter, 1 special character)
-// - gender (you can use radio buttons or select control)
-// - accept T&C (checkbox)
-// - input control to upload picture (validate size and extension, allow png jpeg, save in redux store as base64)
-// - autocomplete control to select country (all countries should be stored in the Redux store) Form should contain labels, which should be connected with inputs (look at **htmlFor**)
