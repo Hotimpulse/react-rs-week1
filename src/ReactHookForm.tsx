@@ -7,13 +7,13 @@ import { useNavigate } from 'react-router-dom';
 
 interface IFormInputs {
   name: string;
-  age: number | null;
+  age: number;
   email: string;
   password: string;
   confirmPassword: string;
   gender: string;
   acceptTerms: boolean;
-  picture: FileList | string | null;
+  picture: string;
   country: string;
 }
 
