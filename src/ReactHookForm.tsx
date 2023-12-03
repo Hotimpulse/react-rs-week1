@@ -4,6 +4,9 @@ import * as yup from 'yup';
 import { useDropzone } from 'react-dropzone';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
+import { updatePicture } from './store/formDataSlice';
+import { useDispatch } from 'react-redux';
+import MyButtonComponent from './components/MyButtonComponent';
 
 interface IFormInputs {
   name: string;
@@ -51,10 +54,13 @@ export default function ReactHookForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
     setValue,
-  } = useForm<IFormInputs>({ resolver: yupResolver(schema) });
+  } = useForm<IFormInputs>({ resolver: yupResolver(schema), mode: 'onBlur' });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const fieldStyle =
     'flex flex-col mb-2 text-left bg-amber-200 rounded border-black border-2 w-96 mx-auto';
@@ -75,12 +81,11 @@ export default function ReactHookForm() {
       const reader = new FileReader();
       reader.onload = () => {
         setValue('picture', reader.result as string);
+        dispatch(updatePicture(reader.result as string));
       };
       reader.readAsDataURL(file);
     },
   });
-
-  const navigate = useNavigate();
 
   const countryOptions = ['Country 1', 'Country 2', 'Country 3'];
 
@@ -181,9 +186,12 @@ export default function ReactHookForm() {
           />
           <p className="text-red-600">{errors.country?.message}</p>
         </div>
-        <button type="submit" className="text-black-600 bg-amber-200">
-          Submit
-        </button>
+        <MyButtonComponent
+          label="Submit"
+          type="submit"
+          className={`text-black-600 bg-amber-200 ${isValid ? '' : 'disabled'}`}
+          disabled={!isValid}
+        />
       </form>
     </>
   );

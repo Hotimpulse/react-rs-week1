@@ -2,25 +2,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface FormData {
   name: string;
-  age: number | null;
+  age: number;
   email: string;
   password: string;
   confirmPassword: string;
   gender: string;
   acceptTerms: boolean;
-  picture: string | null;
+  picture: string;
   country: string;
 }
 
 const initialState: FormData = {
   name: '',
-  age: null,
+  age: 0,
   email: '',
   password: '',
   confirmPassword: '',
   gender: '',
   acceptTerms: false,
-  picture: null,
+  picture: '',
   country: '',
 };
 
@@ -31,8 +31,11 @@ const formDataSlice = createSlice({
     updateFormData: (state, action: PayloadAction<FormData>) => {
       return { ...state, ...action.payload };
     },
+    updatePicture: (state, action: PayloadAction<string>) => {
+      state.picture = action.payload;
+    },
   },
 });
 
-export const { updateFormData } = formDataSlice.actions;
+export const { updateFormData, updatePicture } = formDataSlice.actions;
 export default formDataSlice.reducer;

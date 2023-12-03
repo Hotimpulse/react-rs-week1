@@ -7,6 +7,8 @@ import './App.css';
 import ReactHookForm from './ReactHookForm';
 import UncontrolledForm from './UncontrolledForm';
 import Home from './Home';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 
 const router = createBrowserRouter([
   {
@@ -28,7 +30,13 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
+    </>
+  );
 }
 
 export default App;
