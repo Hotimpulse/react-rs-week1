@@ -9,18 +9,7 @@ import { updatePicture, updateCountry } from '../store/formDataSlice';
 import MyButtonComponent from './MyButtonComponent';
 import { useEffect } from 'react';
 import NavBar from './NavBar';
-
-interface IFormInputs {
-  name: string;
-  age: number;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  gender: string;
-  acceptTerms: boolean;
-  picture: string;
-  country: string;
-}
+import { IFormInputs } from '../interfaces/IFormInputs';
 
 const schema = yup.object({
   name: yup.string().required('Name is required'),
