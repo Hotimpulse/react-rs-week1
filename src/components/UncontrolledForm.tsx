@@ -5,8 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { updateCountry, updatePicture } from '../store/formDataSlice';
 import NavBar from './NavBar';
 import MyButtonComponent from './MyButtonComponent';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IFormInputs } from '../interfaces/IFormInputs';
+
+interface ValidationErrors {
+  [key: string]: string;
+}
 
 const schema = yup.object({
   name: yup.string().required('Name is required'),
@@ -46,7 +50,12 @@ export default function UncontrolledForm() {
     'flex flex-col mb-2 text-left bg-amber-200 rounded border-black border-2 w-96 mx-auto';
 
   const [file, setFile] = useState<string | null>(null);
-  const [error, setError] = useState<string>('');
+  // const [error, setError] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {}
+  );
+
+  useEffect(() => {}, [validationErrors, setValidationErrors]);
   // eslint-disable-next-line prefer-const
   let [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
@@ -73,7 +82,7 @@ export default function UncontrolledForm() {
     dispatch(updateCountry(selectedCountry!));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
@@ -83,66 +92,21 @@ export default function UncontrolledForm() {
       formDataObj[key] = key === 'acceptTerms' ? value === 'on' : value;
     });
 
-    const errors: { [key: string]: string } = {};
-    if (!formDataObj.name) {
-      errors.name = 'This field is required';
-      setError(errors.name);
-    }
+    try {
+      await schema.validate(formDataObj, { abortEarly: false });
 
-    if (!formDataObj.age) {
-      errors.age = 'This field is required';
-      setError(errors.age);
-    }
+      console.log('Form data is valid', formDataObj);
+      navigate('/');
+    } catch (validationError) {
+      if (validationError instanceof yup.ValidationError) {
+        const yupErrors: ValidationErrors = {};
 
-    if (!formDataObj.email) {
-      errors.email = 'This field is required';
-      setError(errors.email);
+        validationError.inner.forEach((error) => {
+          yupErrors[error.path!] = error.message;
+        });
+        setValidationErrors(yupErrors);
+      }
     }
-
-    if (!formDataObj.password) {
-      errors.password = 'This field is required';
-      setError(errors.password);
-    }
-
-    if (!formDataObj.confirmPassword) {
-      errors.confirmPassword = 'This field is required';
-      setError(errors.confirmPassword);
-    }
-
-    if (!formDataObj.gender) {
-      errors.gender = 'This field is required';
-      setError(errors.gender);
-    }
-
-    if (!formDataObj.acceptTerms) {
-      errors.acceptTerms = 'This field is required';
-      setError(errors.acceptTerms);
-    }
-
-    if (!formDataObj.picture) {
-      errors.picture = 'This field is required';
-      setError(errors.picture);
-    }
-
-    if (!formDataObj.country) {
-      errors.country = 'This field is required';
-      setError(errors.country);
-    }
-
-    if (Object.keys(errors).length > 0) {
-      console.error('Validation errors:', errors);
-      return;
-    }
-
-    schema
-      .validate(formDataObj, { abortEarly: false })
-      .then((validatedData) => {
-        console.log(validatedData);
-        navigate('/');
-      })
-      .catch((err) => {
-        console.error(err);
-      });
   };
 
   return (
@@ -158,17 +122,17 @@ export default function UncontrolledForm() {
             placeholder="Enter your name"
             name="name"
           />
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{validationErrors.name}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="age">Age:</label>
           <input type="number" placeholder="Enter your age" name="age" />
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{validationErrors.age}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="email">Email:</label>
           <input type="email" placeholder="Enter your email" name="email" />
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{validationErrors.email}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="password">Password:</label>
@@ -177,6 +141,7 @@ export default function UncontrolledForm() {
             placeholder="Enter your password"
             name="password"
           />
+          <p className="text-red-600">{validationErrors.password}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="confirmPassword">Confirm password:</label>
@@ -185,6 +150,7 @@ export default function UncontrolledForm() {
             name="confirmPassword"
             placeholder="Enter your password again"
           />
+          <p className="text-red-600">{validationErrors.confirmPassword}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="gender">Your gender:</label>
@@ -192,6 +158,7 @@ export default function UncontrolledForm() {
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
+          <p className="text-red-600">{validationErrors.gender}</p>
         </div>
         <div className="flex justify-center gap-3 mb-3">
           <label htmlFor="acceptTerms">Accept Terms and Conditions:</label>
@@ -205,6 +172,7 @@ export default function UncontrolledForm() {
             id="picture"
             onChange={handleFileChange}
           />
+          <p className="text-red-600">{validationErrors.picture}</p>
         </div>
 
         <div className="flex justify-center gap-3 mb-3 items-center">
@@ -219,11 +187,14 @@ export default function UncontrolledForm() {
             id="country"
             onChange={handleCountryChange}
           />
+          <p className="text-red-600">{validationErrors.country}</p>
         </div>
         <MyButtonComponent
           label="Submit"
           type="submit"
-          className={`text-black-600 bg-amber-200`}
+          className={`text-black-600 bg-amber-200 ${
+            Object.keys(validationErrors).length > 0 ? 'disabled' : ''
+          }`}
         />
       </form>
     </div>
