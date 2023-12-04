@@ -1,14 +1,12 @@
 import { useDispatch } from 'react-redux';
 import Select from 'react-select';
-import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { updateCountry, updatePicture } from '../store/formDataSlice';
 import NavBar from './NavBar';
-import { IFormInputs } from '../interfaces/IFormInputs';
 import MyButtonComponent from './MyButtonComponent';
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import { IFormInputs } from '../interfaces/IFormInputs';
 
 const schema = yup.object({
   name: yup.string().required('Name is required'),
@@ -44,120 +42,160 @@ export default function UncontrolledForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-    reset,
-    setValue,
-    trigger,
-  } = useForm<IFormInputs>({ resolver: yupResolver(schema), mode: 'onSubmit' });
-
   const fieldStyle =
     'flex flex-col mb-2 text-left bg-amber-200 rounded border-black border-2 w-96 mx-auto';
 
-  const [file, setFile] = useState<File | null>(null);
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [file, setFile] = useState<string | null>(null);
+  const [error, setError] = useState<string>('');
+  // eslint-disable-next-line prefer-const
+  let [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0] || null;
-    setFile(selectedFile);
+    const selectedFile = e.target.files?.[0];
+
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setFile(base64String);
+        dispatch(updatePicture(base64String));
+      };
+
+      reader.readAsDataURL(selectedFile);
+    }
   };
 
   const handleCountryChange = (
     selectedOption: { label: string; value: string } | null
   ) => {
-    const selectedCountry =
-      (selectedOption as { value: string })?.value || null;
+    selectedCountry = (selectedOption as { value: string })?.value || null;
     setSelectedCountry(selectedCountry);
+    dispatch(updateCountry(selectedCountry!));
   };
 
-  const onSubmit: SubmitHandler<IFormInputs> = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get('name'),
-      age: formData.get('age'),
-      email: formData.get('email'),
-      password: formData.get('password'),
-      confirmPassword: formData.get('confirmPassword'),
-      gender: formData.get('gender'),
-      acceptTerms: formData.get('acceptTerms'),
-      picture: formData.get('picture'),
-      country: formData.get('country'),
-    };
-    console.log({ data });
-    dispatch(updateCountry(selectedCountry!));
-    reset();
-    navigate('/');
+    const formDataObj: IFormInputs = {};
+
+    formData.forEach((value, key) => {
+      formDataObj[key] = key === 'acceptTerms' ? value === 'on' : value;
+    });
+
+    const errors: { [key: string]: string } = {};
+    if (!formDataObj.name) {
+      errors.name = 'This field is required';
+      setError(errors.name);
+    }
+
+    if (!formDataObj.age) {
+      errors.age = 'This field is required';
+      setError(errors.age);
+    }
+
+    if (!formDataObj.email) {
+      errors.email = 'This field is required';
+      setError(errors.email);
+    }
+
+    if (!formDataObj.password) {
+      errors.password = 'This field is required';
+      setError(errors.password);
+    }
+
+    if (!formDataObj.confirmPassword) {
+      errors.confirmPassword = 'This field is required';
+      setError(errors.confirmPassword);
+    }
+
+    if (!formDataObj.gender) {
+      errors.gender = 'This field is required';
+      setError(errors.gender);
+    }
+
+    if (!formDataObj.acceptTerms) {
+      errors.acceptTerms = 'This field is required';
+      setError(errors.acceptTerms);
+    }
+
+    if (!formDataObj.picture) {
+      errors.picture = 'This field is required';
+      setError(errors.picture);
+    }
+
+    if (!formDataObj.country) {
+      errors.country = 'This field is required';
+      setError(errors.country);
+    }
+
+    if (Object.keys(errors).length > 0) {
+      console.error('Validation errors:', errors);
+      return;
+    }
+
+    schema
+      .validate(formDataObj, { abortEarly: false })
+      .then((validatedData) => {
+        console.log(validatedData);
+        navigate('/');
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   return (
     <div>
       <NavBar />
       <h1 className="mb-5">Uncontrolled Form</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit}>
         <div className={fieldStyle}>
           <label htmlFor="name">Name:</label>
           <input
             className=""
             type="text"
             placeholder="Enter your name"
-            {...register('name')}
+            name="name"
           />
-          <p className="text-red-600">{errors.name?.message}</p>
+          <p className="text-red-600">{error}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="age">Age:</label>
-          <input
-            type="number"
-            placeholder="Enter your age"
-            {...register('age')}
-          />
-          <p className="text-red-600">{errors.age?.message}</p>
+          <input type="number" placeholder="Enter your age" name="age" />
+          <p className="text-red-600">{error}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            {...register('email')}
-          />
-          <p className="text-red-600">{errors.email?.message}</p>
+          <input type="email" placeholder="Enter your email" name="email" />
+          <p className="text-red-600">{error}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="password">Password:</label>
           <input
             type="password"
             placeholder="Enter your password"
-            {...register('password')}
+            name="password"
           />
-          <p className="text-red-600">{errors.password?.message}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="confirmPassword">Confirm password:</label>
           <input
             type="password"
+            name="confirmPassword"
             placeholder="Enter your password again"
-            {...register('confirmPassword')}
           />
-          <p className="text-red-600">{errors.confirmPassword?.message}</p>
         </div>
         <div className={fieldStyle}>
           <label htmlFor="gender">Your gender:</label>
-          <select {...register('gender')} id="gender">
+          <select name="gender" id="gender">
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
-          <p className="text-red-600">{errors.gender?.message}</p>
         </div>
         <div className="flex justify-center gap-3 mb-3">
           <label htmlFor="acceptTerms">Accept Terms and Conditions:</label>
-          <input
-            type="checkbox"
-            {...register('acceptTerms')}
-            id="acceptTerms"
-          />
-          <p className="text-red-600">{errors.acceptTerms?.message}</p>
+          <input type="checkbox" name="acceptTerms" id="acceptTerms" />
         </div>
         <div className="flex justify-center gap-3 mb-3 items-center">
           <label htmlFor="picture">Upload a picture:</label>

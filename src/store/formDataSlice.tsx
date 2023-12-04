@@ -1,18 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IFormInputs } from '../interfaces/IFormInputs';
 
-interface FormData {
-  name: string;
-  age: number;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  gender: string;
-  acceptTerms: boolean;
-  picture: string;
-  country: string;
-}
-
-const initialState: FormData = {
+const initialState: IFormInputs = {
   name: '',
   age: 0,
   email: '',
